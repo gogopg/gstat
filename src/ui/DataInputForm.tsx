@@ -24,7 +24,7 @@ type DataInputPageProps = {
   setProfileDataAction: React.Dispatch<React.SetStateAction<ProfileData[]>>;
 };
 
-export default function DataInputPage({
+export default function DataInputForm({
   stats,
   setStepAction,
   setProfileDataAction,

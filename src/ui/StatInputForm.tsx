@@ -23,7 +23,7 @@ type StatInputPageProps = {
   setStepAction: React.Dispatch<React.SetStateAction<number>>;
 };
 
-export default function StatInputPage({
+export default function StatInputForm({
   setStats,
   setStepAction,
 }: StatInputPageProps) {
