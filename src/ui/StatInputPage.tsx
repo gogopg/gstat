@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import React from "react";
-import { Stat } from "@/app/input/page";
+import { Stat } from "@/types/profile";
 
 type FormValues = {
   stats: { value: string }[];
