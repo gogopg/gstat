@@ -25,6 +25,9 @@ export default function TopBar() {
         <NavigationMenuLink asChild>
           <Link href="/stats">Stats</Link>
         </NavigationMenuLink>
+        <NavigationMenuLink asChild>
+          <Link href="/input">Input</Link>
+        </NavigationMenuLink>
       </NavigationMenuList>
     </NavigationMenu>
   );

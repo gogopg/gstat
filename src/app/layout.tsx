@@ -32,7 +32,7 @@ export default function RootLayout({
         <header className="fixed top-0 left-0 z-50 w-full border-b bg-white shadow">
           <TopBar />
         </header>
-        <main className="pt-16">{children}</main>
+        <main className="mx-auto max-w-screen-lg px-4 pt-16">{children}</main>
       </body>
     </html>
   );
