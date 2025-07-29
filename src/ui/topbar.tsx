@@ -23,10 +23,7 @@ export default function TopBar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuLink asChild>
-          <Link href="/stats">Stats</Link>
-        </NavigationMenuLink>
-        <NavigationMenuLink asChild>
-          <Link href="/input">Input</Link>
+          <Link href="/reports">Reports</Link>
         </NavigationMenuLink>
       </NavigationMenuList>
     </NavigationMenu>

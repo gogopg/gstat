@@ -1,27 +1,21 @@
 "use client";
-import { PlusCircleIcon, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
-import Link from "next/link";
+import { ReportCreationDialog } from "@/ui/ReportCreationDialog";
+import { Report } from "@/types/report";
+import { Label } from "@/components/ui/label";
 
 export default function page() {
-  const [reports, setReports] = useState();
+  const [reports, setReports] = useState<Report[]>([]);
 
   return (
     <div>
-      <Button
-        type="button"
-        variant="ghost"
-        className="inline-flex text-blue-500"
-        aria-label="새 리포트 추가"
-        asChild
-      >
-        <Link href="/reports/creation">
-          <PlusCircleIcon className="h-5 w-5" />새 리포트 추가
-        </Link>
-      </Button>
-        <div>
-        </div>
+      <ReportCreationDialog reports={reports} setReportsAction={setReports} />
+
+      <div>
+        {reports.map((report) => {
+          return <Label key={report.name}>{report.name}</Label>;
+        })}
+      </div>
     </div>
   );
 }

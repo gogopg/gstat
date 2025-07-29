@@ -12,16 +12,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import React from "react";
-import { ProfileData, Stat } from "@/types/profile";
+import { Profile, Stat } from "@/types/profile";
 
 type FormValues = {
-  profiles: ProfileData[];
+  profiles: Profile[];
 };
 
 type DataInputPageProps = {
   stats: Stat[];
   setStepAction: React.Dispatch<React.SetStateAction<number>>;
-  setProfileDataAction: React.Dispatch<React.SetStateAction<ProfileData[]>>;
+  setProfileDataAction: React.Dispatch<React.SetStateAction<Profile[]>>;
 };
 
 export default function DataInputForm({
@@ -67,7 +67,7 @@ export default function DataInputForm({
                   <FormItem>
                     <FormControl>
                       <div className="flex items-center gap-2">
-                        <label>이름:</label>
+                        <label className="w-10">이름</label>
                         <Input
                           {...field}
                           placeholder="이름"
@@ -87,11 +87,11 @@ export default function DataInputForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="flex items-center gap-2">
-                          <label>{stat.value}:</label>
+                        <div className="inline-flex items-center gap-2">
+                          <label className="w-10">{stat.value}</label>
                           <Input
                             {...field}
-                            placeholder="지표명"
+                            placeholder={stat.value}
                             value={field.value ?? ""}
                           />
                         </div>
@@ -106,10 +106,10 @@ export default function DataInputForm({
                 variant="ghost"
                 className="flex items-center gap-1 text-red-500"
                 onClick={() => remove(index)}
-                aria-label="플레이어 삭제"
+                aria-label="프로필 삭제"
               >
                 <TrashIcon className="h-5 w-5" />
-                플레이어 삭제
+                프로필 삭제
               </Button>
             </div>
           ))}
@@ -120,7 +120,7 @@ export default function DataInputForm({
             onClick={() => append({ name: "", stats: {} })}
           >
             <CirclePlusIcon className="h-4 w-4" />
-            플레이어 추가
+            프로필 추가
           </Button>
 
           <Button type="submit">Submit</Button>
