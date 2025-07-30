@@ -30,11 +30,6 @@ export function ReportCreationDialog({
     setOpen(false);
     setReportName(draftName);
     setDraftName(draftName);
-
-    setReportsAction((prevReports) => [
-      ...prevReports,
-      { name: draftName, profiles: [] },
-    ]);
   };
 
   const handleCancel = () => {
@@ -55,7 +50,7 @@ export function ReportCreationDialog({
       >
         <PlusCircleIcon className="h-5 w-5" />새 리포트 추가
       </Button>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>새 리포트 생성</DialogTitle>
           <DialogDescription>
@@ -64,9 +59,6 @@ export function ReportCreationDialog({
         </DialogHeader>
         <div className="flex items-center gap-2">
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="link" className="sr-only">
-              Link
-            </Label>
             <Input
               id="report-name"
               value={draftName}
