@@ -3,17 +3,16 @@ import { TrashIcon, CirclePlusIcon } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import React from "react";
-import { StatDefinition } from "@/types/profile";
 
-export default function StatDefinitionInput() {
+export default function ProfileDefinitionInput() {
   const { control, register } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "statDefinitions",
+    name: "reportDefinitions",
   });
 
   return (
@@ -22,18 +21,18 @@ export default function StatDefinitionInput() {
         <FormField
           key={field.id}
           control={control}
-          name={`statDefinitions.${index}.value`}
+          name={`reportDefinitions.${index}.value`}
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <div className="flex items-center gap-2">
-                  <Input {...field} placeholder="지표명" />
+                  <Input {...field} placeholder="프로필 명" />
                   <Button
                     type="button"
                     variant="ghost"
                     className="h-5 w-5 p-0 text-red-500"
                     onClick={() => remove(index)}
-                    aria-label="지표 삭제"
+                    aria-label="프로필 삭제"
                   >
                     <TrashIcon className="h-5 w-5" />
                   </Button>
@@ -46,7 +45,7 @@ export default function StatDefinitionInput() {
       ))}
       <Button type="button" variant="ghost" className="flex items-center gap-1" onClick={() => append({ value: "" })}>
         <CirclePlusIcon className="h-4 w-4" />
-        지표 추가
+        프로필 추가
       </Button>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ReportCreationDialog } from "@/ui/ReportCreationDialog";
-import { Report } from "@/types/report";
+import { StatReport } from "@/types/statReport";
 import { Label } from "@/components/ui/label";
 import { ReportCard } from "@/ui/ReportCard";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { PlusCircleIcon } from "lucide-react";
 import Link from "next/dist/client/link";
 
 export default function page() {
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<StatReport[]>([]);
 
   return (
     <div>

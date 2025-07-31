@@ -6,23 +6,38 @@ import ProfileInput from "@/ui/ProfileInput";
 import { StatDefinition, Profile } from "@/types/profile";
 import { Input } from "@/components/ui/input";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
-import { Report } from "@/types/report";
+import { StatReport } from "@/types/statReport";
+import { useRouter } from "next/navigation";
+import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
 
 export default function Page() {
-  const [step, setStep] = useState(1);
-  const [stats, setStats] = useState<StatDefinition[]>([{ value: "" }]);
-  const [profilesData, setProfileData] = useState<Profile[]>([{ name: "", stats: {} }]);
+  const router = useRouter();
 
-  const methods = useForm<Report>({
+  const methods = useForm<StatReport>({
     defaultValues: {
       name: "",
       statDefinitions: [],
+      profileDefinitions: [],
       profiles: [],
     },
   });
 
   const onSubmit = methods.handleSubmit((data) => {
-    console.log(data);
+    const reportsOrigin = localStorage.getItem("reports");
+
+    if (reportsOrigin) {
+      const reports = JSON.parse(reportsOrigin);
+      console.log(reports.reports);
+      reports.reports.push({ name: data.name, data: data });
+      localStorage.setItem("reports", JSON.stringify(reports));
+    } else {
+      const target = {
+        reports: [{ name: data.name, data: data }],
+      };
+
+      localStorage.setItem("reports", JSON.stringify(target));
+    }
+    router.push(`/reports/${data.name}`);
   });
 
   return (
@@ -30,8 +45,8 @@ export default function Page() {
       <FormProvider {...methods}>
         <form onSubmit={onSubmit}>
           <input {...methods.register("name")} placeholder="report 이름" />
-          <StatDefinitionInput setStats={setStats} setStepAction={setStep} />
-          <ProfileInput />
+          <StatDefinitionInput />
+          <ProfileDefinitionInput />
 
           <button type="submit">저장</button>
         </form>

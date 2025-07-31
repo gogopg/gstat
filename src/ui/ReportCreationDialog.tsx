@@ -11,17 +11,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PlusCircleIcon } from "lucide-react";
 import React, { useState } from "react";
-import { Report } from "@/types/report";
+import { StatReport } from "@/types/statReport";
 
 type ReportCreationDialogProps = {
-  reports: Report[];
-  setReportsAction: React.Dispatch<React.SetStateAction<Report[]>>;
+  reports: StatReport[];
+  setReportsAction: React.Dispatch<React.SetStateAction<StatReport[]>>;
 };
 
-export function ReportCreationDialog({
-  reports,
-  setReportsAction,
-}: ReportCreationDialogProps) {
+export function ReportCreationDialog({ reports, setReportsAction }: ReportCreationDialogProps) {
   const [reportName, setReportName] = useState("");
   const [draftName, setDraftName] = useState("");
   const [open, setOpen] = useState(false);
@@ -53,9 +50,7 @@ export function ReportCreationDialog({
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>새 리포트 생성</DialogTitle>
-          <DialogDescription>
-            새 리포트의 이름을 입력해주세요.
-          </DialogDescription>
+          <DialogDescription>새 리포트의 이름을 입력해주세요.</DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-2">
           <div className="grid flex-1 gap-2">
