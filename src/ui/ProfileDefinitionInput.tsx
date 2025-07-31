@@ -12,7 +12,7 @@ export default function ProfileDefinitionInput() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "reportDefinitions",
+    name: "profileDefinitions",
   });
 
   return (
@@ -21,7 +21,7 @@ export default function ProfileDefinitionInput() {
         <FormField
           key={field.id}
           control={control}
-          name={`reportDefinitions.${index}.value`}
+          name={`profileDefinitions.${index}.value`}
           render={({ field }) => (
             <FormItem>
               <FormControl>
