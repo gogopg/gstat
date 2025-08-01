@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { CirclePlusIcon, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
+import { MatchRecord, StatValue } from "@/types/matchRecord";
+import { ProfileRecord } from "@/types/profile";
 
 type savedReports = {
   reports: {
@@ -17,19 +20,75 @@ type savedReports = {
   }[];
 };
 
+type MatchRecordInput = {
+  matchRecords: {
+    [profileKey: string]: {
+      [statKey: string]: string;
+    };
+  };
+  matchRecordName: string;
+};
 export default function Page() {
-  const methods = useForm<StatReport>({
+  const recordMethods = useForm<MatchRecordInput>({
     defaultValues: {
-      name: "",
-      statDefinitions: [],
-      profileDefinitions: [],
-      profiles: [],
-      matchRecords: [],
+      matchRecords: {},
+      matchRecordName: "",
     },
   });
 
   const pathname = usePathname().split("/")[2];
-  const [statReport, setStatReport] = useState<StatReport | null>(null);
+  const [statReport, setStatReport] = useState<StatReport>();
+  const [createRecordFlag, setCreateRecordFlag] = useState(false);
+
+  const addMatchRecord = (rawData: MatchRecordInput) => {
+    const newMatchRecord: MatchRecord = {
+      name: rawData.matchRecordName,
+      enterDate: new Date(),
+      profileRecords: [],
+    };
+
+    const matchRecordList = Object.values(rawData.matchRecords);
+    const resultMap = new Map<string, ProfileRecord>();
+
+    for (const record of matchRecordList) {
+      const profileName = Object.keys(record)[0];
+      const statObj = record[profileName];
+
+      const existing = resultMap.get(profileName);
+      if (!existing) {
+        resultMap.set(profileName, {
+          name: profileName,
+          count: 1,
+          stats: Object.fromEntries(Object.entries(statObj).map(([k, v]) => [k, Number(v)])),
+        });
+      } else {
+        for (const [statKey, value] of Object.entries(statObj)) {
+          existing.stats[statKey] = Number(value);
+        }
+      }
+    }
+    newMatchRecord.profileRecords.push(...Array.from(resultMap.values()));
+
+    setStatReport((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        matchRecords: [...prev.matchRecords, newMatchRecord],
+      };
+    });
+
+    cancelRecordInput();
+  };
+
+  const cancelRecordInput = () => {
+    setCreateRecordFlag(false);
+    recordMethods.reset();
+  };
+
+  useEffect(() => {
+    console.log("statReport", statReport);
+  }, [statReport]);
 
   useEffect(() => {
     try {
@@ -38,9 +97,8 @@ export default function Page() {
 
       const parsed: savedReports = JSON.parse(raw);
       const match = parsed.reports.find((report) => report.name === pathname);
-      setStatReport(match?.data || null);
-      if (statReport) {
-        methods.reset(statReport);
+      if (match?.data) {
+        setStatReport(match.data);
       }
     } catch (err) {
       console.error("Failed to parse reports:", err);
@@ -59,13 +117,46 @@ export default function Page() {
       ))}
       <Label>프로필</Label>
       {statReport.profileDefinitions.map((item) => (
-        <Badge key={item.value}>{item.value}</Badge>
+        <Badge key={item.name}>{item.name}</Badge>
       ))}
 
-      <Button type="button" variant="ghost" className="flex items-center gap-1" onClick={() => append({ value: "" })}>
-        <CirclePlusIcon className="h-4 w-4" />
-        기록 추가
-      </Button>
+      {!createRecordFlag && (
+        <Button
+          type="button"
+          variant="ghost"
+          className="flex items-center gap-1"
+          onClick={() => setCreateRecordFlag(true)}
+        >
+          <CirclePlusIcon className="h-4 w-4" />
+          기록 추가
+        </Button>
+      )}
+      {createRecordFlag && (
+        <div>
+          <FormProvider {...recordMethods}>
+            <CreateMatchRecordInput
+              statDefinitions={statReport.statDefinitions}
+              profileDefinitions={statReport.profileDefinitions}
+            />
+          </FormProvider>
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex items-center gap-1"
+            onClick={recordMethods.handleSubmit(addMatchRecord)}
+          >
+            입력
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex items-center gap-1"
+            onClick={cancelRecordInput}
+          >
+            취소
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,8 @@
+import { ProfileRecord } from "@/types/profile";
+
 export type StatValue = Record<string, number>;
-export type matchRecord = {
-  stats: StatValue;
-  count: number;
-  description?: string;
+export type MatchRecord = {
+  name: string;
+  enterDate: Date;
+  profileRecords: ProfileRecord[];
 };

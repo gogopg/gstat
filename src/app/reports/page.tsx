@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ReportCreationDialog } from "@/ui/ReportCreationDialog";
+import { CreateReportDialog } from "@/ui/CreateReportDialog";
 import { StatReport } from "@/types/statReport";
 import { Label } from "@/components/ui/label";
 import { ReportCard } from "@/ui/ReportCard";
@@ -19,7 +19,7 @@ export default function page() {
         </Button>
       </Link>
 
-      <ReportCreationDialog reports={reports} setReportsAction={setReports} />
+      <CreateReportDialog reports={reports} setReportsAction={setReports} />
 
       <div>
         {reports.map((report) => {

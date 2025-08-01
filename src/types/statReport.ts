@@ -1,11 +1,13 @@
-import { Profile, StatDefinition } from "@/types/profile";
-import { matchRecord } from "@/types/matchRecord";
+import { StatDefinition } from "@/types/profile";
+import { MatchRecord } from "@/types/matchRecord";
 
-export type profileDefinition = { value: string };
+export type ProfileDefinition = {
+  name: string;
+  description?: string;
+};
 export type StatReport = {
   name: string;
   statDefinitions: StatDefinition[];
-  profileDefinitions: profileDefinition[];
-  profiles: Profile[];
-  matchRecords: matchRecord[];
+  profileDefinitions: ProfileDefinition[];
+  matchRecords: MatchRecord[];
 };

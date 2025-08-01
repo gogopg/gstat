@@ -1,7 +1,8 @@
-import { matchRecord } from "@/types/matchRecord";
+import { StatValue } from "@/types/matchRecord";
 
 export type StatDefinition = { value: string };
-export type Profile = {
+export type ProfileRecord = {
   name: string;
-  matchRecords: matchRecord[];
+  stats: StatValue;
+  count: number;
 };

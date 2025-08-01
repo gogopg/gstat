@@ -18,7 +18,7 @@ type ReportCreationDialogProps = {
   setReportsAction: React.Dispatch<React.SetStateAction<StatReport[]>>;
 };
 
-export function ReportCreationDialog({ reports, setReportsAction }: ReportCreationDialogProps) {
+export function CreateReportDialog({ reports, setReportsAction }: ReportCreationDialogProps) {
   const [reportName, setReportName] = useState("");
   const [draftName, setDraftName] = useState("");
   const [open, setOpen] = useState(false);
