@@ -17,27 +17,27 @@ import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/f
 import { TrashIcon } from "lucide-react";
 
 type MatchRecordCardType = {
-  profile: string;
+  profileName: string;
   statDefinitions: StatDefinition[];
   profileIndex: number;
 };
 
-export function MatchRecordCard({ profile, statDefinitions, profileIndex }: MatchRecordCardType) {
+export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: MatchRecordCardType) {
   const { control } = useFormContext();
   const statLength = statDefinitions.length;
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm" key={`${profileName}`}>
       <CardHeader>
-        <CardTitle>{profile}</CardTitle>
+        <CardTitle>{profileName}</CardTitle>
       </CardHeader>
       <CardContent>
         {statDefinitions.map((statDefinition, index) => {
           return (
             <FormField
-              key={`${profile}-${statDefinition.value}`}
+              key={`${profileName}-${statDefinition.value}`}
               control={control}
-              name={`matchRecords.${profileIndex * statLength + index}.${profile}.${statDefinition.value}`}
+              name={`matchRecords.${profileIndex * statLength + index}.${profileName}.${statDefinition.value}`}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

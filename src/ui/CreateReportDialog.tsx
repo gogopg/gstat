@@ -7,18 +7,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PlusCircleIcon } from "lucide-react";
 import React, { useState } from "react";
-import { StatReport } from "@/types/statReport";
 
-type ReportCreationDialogProps = {
-  reports: StatReport[];
-  setReportsAction: React.Dispatch<React.SetStateAction<StatReport[]>>;
-};
-
-export function CreateReportDialog({ reports, setReportsAction }: ReportCreationDialogProps) {
+export function CreateReportDialog() {
   const [reportName, setReportName] = useState("");
   const [draftName, setDraftName] = useState("");
   const [open, setOpen] = useState(false);

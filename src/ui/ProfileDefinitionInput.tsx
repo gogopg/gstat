@@ -21,7 +21,7 @@ export default function ProfileDefinitionInput() {
         <FormField
           key={field.id}
           control={control}
-          name={`profileDefinitions.${index}.value`}
+          name={`profileDefinitions.${index}.name`}
           render={({ field }) => (
             <FormItem>
               <FormControl>
@@ -43,7 +43,7 @@ export default function ProfileDefinitionInput() {
           )}
         />
       ))}
-      <Button type="button" variant="ghost" className="flex items-center gap-1" onClick={() => append({ value: "" })}>
+      <Button type="button" variant="ghost" className="flex items-center gap-1" onClick={() => append({ name: "" })}>
         <CirclePlusIcon className="h-4 w-4" />
         프로필 추가
       </Button>

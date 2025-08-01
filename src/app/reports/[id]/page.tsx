@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { CirclePlusIcon, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
-import { MatchRecord, StatValue } from "@/types/matchRecord";
+import { MatchRecord } from "@/types/matchRecord";
 import { ProfileRecord } from "@/types/profile";
 
 type savedReports = {
@@ -113,11 +113,11 @@ export default function Page() {
     <div>
       <Label>스텟</Label>
       {statReport.statDefinitions.map((item) => (
-        <Badge key={item.value}>{item.value}</Badge>
+        <Badge key={`stat-${item.value}`}>{item.value}</Badge>
       ))}
       <Label>프로필</Label>
       {statReport.profileDefinitions.map((item) => (
-        <Badge key={item.name}>{item.name}</Badge>
+        <Badge key={`profile-${item.name}`}>{item.name}</Badge>
       ))}
 
       {!createRecordFlag && (
@@ -147,12 +147,7 @@ export default function Page() {
           >
             입력
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="flex items-center gap-1"
-            onClick={cancelRecordInput}
-          >
+          <Button type="button" variant="ghost" className="flex items-center gap-1" onClick={cancelRecordInput}>
             취소
           </Button>
         </div>

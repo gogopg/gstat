@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { CreateReportDialog } from "@/ui/CreateReportDialog";
 import { StatReport } from "@/types/statReport";
 import { Label } from "@/components/ui/label";
-import { ReportCard } from "@/ui/ReportCard";
 import { Button } from "@/components/ui/button";
 import { PlusCircleIcon } from "lucide-react";
 import Link from "next/dist/client/link";
@@ -19,7 +18,7 @@ export default function page() {
         </Button>
       </Link>
 
-      <CreateReportDialog reports={reports} setReportsAction={setReports} />
+      <CreateReportDialog />
 
       <div>
         {reports.map((report) => {

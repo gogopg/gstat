@@ -25,7 +25,7 @@ export default function CreateMatchRecordInput({ statDefinitions, profileDefinit
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Input {...field} placeholder="기록 이름" />
+              <Input {...field} key='recordName' placeholder="기록 이름" />
             </FormControl>
           </FormItem>
         )}
@@ -34,8 +34,8 @@ export default function CreateMatchRecordInput({ statDefinitions, profileDefinit
       {profileDefinitions.map((profileDefinition,index) => {
         return (
           <MatchRecordCard
-            key={profileDefinition.value}
-            profile={profileDefinition.value}
+            key={profileDefinition.name}
+            profileName={profileDefinition.name}
             statDefinitions={statDefinitions}
             profileIndex={index}
           />

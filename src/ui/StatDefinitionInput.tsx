@@ -1,12 +1,11 @@
 "use client";
 import { TrashIcon, CirclePlusIcon } from "lucide-react";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import React from "react";
-import { StatDefinition } from "@/types/profile";
 
 export default function StatDefinitionInput() {
   const { control, register } = useFormContext();

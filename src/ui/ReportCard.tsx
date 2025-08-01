@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button"
 import {
     Card,
-    CardAction,
     CardContent,
     CardDescription,
     CardFooter,
@@ -12,11 +11,9 @@ import { Label } from "@/components/ui/label"
 export function ReportCard() {
     const handleClick2 = (e:React.MouseEvent) => {
         e.stopPropagation();
-        console.log('bbbb')
     }
 
     const handleClick = () => {
-        console.log('aaaa')
     }
     return (
         <Card className="w-full max-w-sm" onClick={handleClick}>

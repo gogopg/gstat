@@ -1,11 +1,8 @@
 "use client";
 
 import StatDefinitionInput from "@/ui/StatDefinitionInput";
-import React, { useState } from "react";
-import ProfileInput from "@/ui/ProfileInput";
-import { StatDefinition, Profile } from "@/types/profile";
-import { Input } from "@/components/ui/input";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import React from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { StatReport } from "@/types/statReport";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
@@ -18,7 +15,6 @@ export default function Page() {
       name: "",
       statDefinitions: [],
       profileDefinitions: [],
-      profiles: [],
       matchRecords: [],
     },
   });
@@ -28,7 +24,6 @@ export default function Page() {
 
     if (reportsOrigin) {
       const reports = JSON.parse(reportsOrigin);
-      console.log(reports.reports);
       reports.reports.push({ name: data.name, data: data });
       localStorage.setItem("reports", JSON.stringify(reports));
     } else {
