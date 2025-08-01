@@ -12,13 +12,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
 import { MatchRecord } from "@/types/matchRecord";
 import { ProfileRecord } from "@/types/profile";
-
-type savedReports = {
-  reports: {
-    name: string;
-    data: StatReport;
-  }[];
-};
+import { useStatReportStore } from "@/store/store";
 
 type MatchRecordInput = {
   matchRecords: {
@@ -91,17 +85,9 @@ export default function Page() {
   }, [statReport]);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("reports");
-      if (!raw) return;
-
-      const parsed: savedReports = JSON.parse(raw);
-      const match = parsed.reports.find((report) => report.name === pathname);
-      if (match?.data) {
-        setStatReport(match.data);
-      }
-    } catch (err) {
-      console.error("Failed to parse reports:", err);
+    const report = useStatReportStore.getState().find(pathname);
+    if (report) {
+      setStatReport(report);
     }
   }, [pathname]);
 

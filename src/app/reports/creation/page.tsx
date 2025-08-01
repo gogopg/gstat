@@ -6,6 +6,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { StatReport } from "@/types/statReport";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
+import { useStatReportStore } from "@/store/store";
 
 export default function Page() {
   const router = useRouter();
@@ -22,17 +23,15 @@ export default function Page() {
   const onSubmit = methods.handleSubmit((data) => {
     const reportsOrigin = localStorage.getItem("reports");
 
-    if (reportsOrigin) {
-      const reports = JSON.parse(reportsOrigin);
-      reports.reports.push({ name: data.name, data: data });
-      localStorage.setItem("reports", JSON.stringify(reports));
-    } else {
-      const target = {
-        reports: [{ name: data.name, data: data }],
-      };
+    const newStatReport: StatReport = {
+      statDefinitions: data.statDefinitions,
+      profileDefinitions: data.profileDefinitions,
+      matchRecords: [],
+      name: data.name,
+    };
 
-      localStorage.setItem("reports", JSON.stringify(target));
-    }
+    useStatReportStore.getState().add(newStatReport);
+
     router.push(`/reports/${data.name}`);
   });
 
