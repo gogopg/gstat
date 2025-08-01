@@ -30,7 +30,7 @@ export default function Page() {
     },
   });
 
-  const pathname = usePathname().split("/")[2];
+  const pathname = decodeURIComponent(usePathname().split("/")[2]);
   const [statReport, setStatReport] = useState<StatReport>();
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
 
@@ -85,13 +85,13 @@ export default function Page() {
   }, [statReport]);
 
   useEffect(() => {
-    const report = useStatReportStore.getState().find(pathname);
+    const report = pathname ? useStatReportStore.getState().find(pathname) : null;
     if (report) {
       setStatReport(report);
     }
   }, [pathname]);
 
-  if (!statReport) {
+  if (!pathname || !statReport) {
     return <div>해당 보고서를 찾을 수 없습니다.</div>;
   }
 
