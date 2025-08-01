@@ -1,14 +1,21 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CreateReportDialog } from "@/ui/CreateReportDialog";
 import { StatReport } from "@/types/statReport";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PlusCircleIcon } from "lucide-react";
 import Link from "next/dist/client/link";
+import { useStatReportStore } from "@/store/store";
+import { StatReportCard } from "@/ui/StatReportCard";
 
 export default function page() {
   const [reports, setReports] = useState<StatReport[]>([]);
+
+  useEffect(() => {
+    const currentReports = useStatReportStore.getState().statReports;
+    setReports(currentReports);
+  }, []);
 
   return (
     <div>
@@ -22,7 +29,7 @@ export default function page() {
 
       <div>
         {reports.map((report) => {
-          return <Label key={report.name}>{report.name}</Label>;
+          return <StatReportCard key={report.name} statReport={report}></StatReportCard>;
         })}
       </div>
     </div>
