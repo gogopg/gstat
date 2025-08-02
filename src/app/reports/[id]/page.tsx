@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
 import { StatReport } from "@/types/statReport";
 import { Badge } from "@/components/ui/badge";
 
-import { CirclePlusIcon, X } from "lucide-react";
+import { CirclePlusIcon, TrashIcon, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
@@ -13,6 +12,7 @@ import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
 import { MatchRecord } from "@/types/matchRecord";
 import { ProfileRecord } from "@/types/profile";
 import { useStatReportStore } from "@/store/store";
+import { useParams } from "next/navigation";
 
 type MatchRecordInput = {
   matchRecords: {
@@ -29,10 +29,12 @@ export default function Page() {
       matchRecordName: "",
     },
   });
-
-  const pathname = decodeURIComponent(usePathname().split("/")[2]);
-  const [statReport, setStatReport] = useState<StatReport>();
+  const { id } = useParams();
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
+
+  const statReport = useStatReportStore((state) =>
+    state.statReports.find((r) => r.name === decodeURIComponent(id as string)),
+  );
 
   const addMatchRecord = (rawData: MatchRecordInput) => {
     const newMatchRecord: MatchRecord = {
@@ -63,14 +65,7 @@ export default function Page() {
     }
     newMatchRecord.profileRecords.push(...Array.from(resultMap.values()));
 
-    setStatReport((prev) => {
-      if (!prev) return prev;
-
-      return {
-        ...prev,
-        matchRecords: [...prev.matchRecords, newMatchRecord],
-      };
-    });
+    useStatReportStore.getState().addMatchRecord(statReport?.name, newMatchRecord);
 
     cancelRecordInput();
   };
@@ -80,18 +75,11 @@ export default function Page() {
     recordMethods.reset();
   };
 
-  useEffect(() => {
-    console.log("statReport", statReport);
-  }, [statReport]);
+  const deleteRecord = (recordName: string) => {
+    useStatReportStore.getState().deleteMatchRecord(statReport?.name, recordName);
+  };
 
-  useEffect(() => {
-    const report = pathname ? useStatReportStore.getState().find(pathname) : null;
-    if (report) {
-      setStatReport(report);
-    }
-  }, [pathname]);
-
-  if (!pathname || !statReport) {
+  if (!statReport) {
     return <div>해당 보고서를 찾을 수 없습니다.</div>;
   }
 
@@ -138,6 +126,26 @@ export default function Page() {
           </Button>
         </div>
       )}
+
+      <div className="p-4">
+        <h3 className="mb-4 text-lg leading-none font-bold font-medium">매치 기록 목록</h3>
+        {statReport.matchRecords.map((record) => (
+          <div className="flex h-full items-center" key={record.name}>
+            <div className="text-sm">{record.name}</div>
+            <Button
+              type="button"
+              variant="ghost"
+              className="inline-flex text-red-500"
+              aria-label="새 리포트 추가"
+              onClick={() => {
+                deleteRecord(record.name);
+              }}
+            >
+              <TrashIcon className="h-5 w-5" />
+            </Button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

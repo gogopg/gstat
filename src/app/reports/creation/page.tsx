@@ -21,8 +21,6 @@ export default function Page() {
   });
 
   const onSubmit = methods.handleSubmit((data) => {
-    const reportsOrigin = localStorage.getItem("reports");
-
     const newStatReport: StatReport = {
       statDefinitions: data.statDefinitions,
       profileDefinitions: data.profileDefinitions,

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { StatReport } from "@/types/statReport";
+import { MatchRecord } from "@/types/matchRecord";
 import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 
@@ -9,6 +10,8 @@ type StatReportStoreType = {
   remove: (name: string) => void;
   update: (name: string, data: Partial<StatReport>) => void;
   find: (name: string) => StatReport | null;
+  addMatchRecord(name: any, newMatchRecord: MatchRecord): void;
+  deleteMatchRecord(reportName: string | undefined, matchRecordName: string): void;
 };
 
 export const useStatReportStore = create<StatReportStoreType>()(
@@ -29,8 +32,23 @@ export const useStatReportStore = create<StatReportStoreType>()(
           if (target) Object.assign(target, data);
         }),
       find: (name: string) => {
-          return get().statReports.find((item:StatReport)=> item.name === name) || null;
+        return get().statReports.find((item: StatReport) => item.name === name) || null;
       },
+      addMatchRecord: (name: string, record: MatchRecord) =>
+        set((state) => {
+          const report = state.statReports.find((r) => r.name === name);
+          if (report) {
+            report.matchRecords.push(record);
+          }
+        }),
+      deleteMatchRecord: (reportName, matchRecordName) =>
+        set((state) => {
+          const report = state.statReports.find((r) => r.name === reportName);
+
+          if (report) {
+              report.matchRecords = report.matchRecords.filter((r: MatchRecord) => r.name !== matchRecordName);
+          }
+        }),
     })),
     {
       name: "StatReports",

@@ -1,10 +1,6 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -43,7 +39,7 @@ export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: 
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <Label>{statDefinition.value}</Label>
-                      <Input {...field} placeholder={statDefinition.value} />
+                      <Input {...field} value={field.value ?? ""} placeholder={statDefinition.value} />
                     </div>
                   </FormControl>
                   <FormMessage />
