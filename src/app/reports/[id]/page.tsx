@@ -13,6 +13,10 @@ import { MatchRecord } from "@/types/matchRecord";
 import { ProfileRecord } from "@/types/profile";
 import { useStatReportStore } from "@/store/store";
 import { useParams } from "next/navigation";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 type MatchRecordInput = {
   matchRecords: {
@@ -129,22 +133,45 @@ export default function Page() {
 
       <div className="p-4">
         <h3 className="mb-4 text-lg leading-none font-bold font-medium">매치 기록 목록</h3>
-        {statReport.matchRecords.map((record) => (
-          <div className="flex h-full items-center" key={record.name}>
-            <div className="text-sm">{record.name}</div>
-            <Button
-              type="button"
-              variant="ghost"
-              className="inline-flex text-red-500"
-              aria-label="새 리포트 추가"
-              onClick={() => {
-                deleteRecord(record.name);
-              }}
-            >
-              <TrashIcon className="h-5 w-5" />
-            </Button>
-          </div>
-        ))}
+        <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+          {statReport.matchRecords.map((record) => (
+            <AccordionItem value={record.name} key={record.name}>
+              <AccordionTrigger>{record.name}</AccordionTrigger>
+              <AccordionContent className="flex flex-col gap-4 text-balance">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="inline-flex text-red-500"
+                  aria-label="새 리포트 추가"
+                  onClick={() => {
+                    deleteRecord(record.name);
+                  }}
+                >
+                  <TrashIcon className="h-5 w-5" />
+                  기록 삭제
+                </Button>
+
+                {record.profileRecords.map((profile) => (
+                  <Card className="w-full max-w-sm" key={`${profile.name}`}>
+                    <CardHeader>
+                      <CardTitle>{profile.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {Object.entries(profile.stats).map(([key, value]) => {
+                        return (
+                          <div key={key} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{key}</span>
+                            <span>{value}</span>
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </div>
   );
