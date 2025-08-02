@@ -10,12 +10,7 @@ import { useStatReportStore } from "@/store/store";
 import { StatReportCard } from "@/ui/StatReportCard";
 
 export default function page() {
-  const [reports, setReports] = useState<StatReport[]>([]);
-
-  useEffect(() => {
-    const currentReports = useStatReportStore.getState().statReports;
-    setReports(currentReports);
-  }, []);
+  const reports = useStatReportStore((state) => state.statReports);
 
   return (
     <div>
