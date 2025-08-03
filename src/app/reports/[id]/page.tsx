@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { StatReport } from "@/types/statReport";
+import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
 import { CirclePlusIcon, TrashIcon, X } from "lucide-react";
@@ -12,11 +11,9 @@ import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
 import { MatchRecord } from "@/types/matchRecord";
 import { ProfileRecord } from "@/types/profile";
 import { useStatReportStore } from "@/store/store";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 
 type MatchRecordInput = {
   matchRecords: {
@@ -35,6 +32,7 @@ export default function Page() {
   });
   const { id } = useParams();
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
+  const router = useRouter();
 
   const statReport = useStatReportStore((state) =>
     state.statReports.find((r) => r.name === decodeURIComponent(id as string)),
@@ -89,6 +87,13 @@ export default function Page() {
 
   return (
     <div>
+      <Button
+        onClick={() => {
+          router.push(`/reports/${id}/graph`);
+        }}
+      >
+        그래프
+      </Button>
       <Label>스텟</Label>
       {statReport.statDefinitions.map((item) => (
         <Badge key={`stat-${item.value}`}>{item.value}</Badge>
