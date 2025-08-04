@@ -1,31 +1,26 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { PlusCircleIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowDownFromLine } from "lucide-react";
 import React, { useState } from "react";
+import { useStatReportStore } from "@/store/store";
 
-export function CreateReportDialog() {
-  const [reportName, setReportName] = useState("");
-  const [draftName, setDraftName] = useState("");
+export function ImportStatReport() {
+  const [draftText, setDraftText] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSave = () => {
+    const reportList = JSON.parse(draftText);
+    useStatReportStore.getState().addMany(reportList);
+
     setOpen(false);
-    setReportName(draftName);
-    setDraftName(draftName);
+    setDraftText(draftText);
   };
 
   const handleCancel = () => {
     setOpen(false);
     setTimeout(() => {
-      setDraftName(reportName); // 안정적으로 초기화
+      setDraftText(draftText); // 안정적으로 초기화
     }, 200);
   };
 
@@ -35,24 +30,19 @@ export function CreateReportDialog() {
         type="button"
         variant="ghost"
         className="inline-flex text-blue-500"
-        aria-label="새 리포트 추가"
+        aria-label="텍스트로 리포트 추가"
         onClick={() => setOpen(true)}
       >
-        <PlusCircleIcon className="h-5 w-5" />새 리포트 추가
+        <ArrowDownFromLine className="h-5 w-5" />
+        리포트 가져오기
       </Button>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>새 리포트 생성</DialogTitle>
-          <DialogDescription>새 리포트의 이름을 입력해주세요.</DialogDescription>
+          <DialogTitle>리포트 가져오기</DialogTitle>
         </DialogHeader>
         <div className="flex items-center gap-2">
           <div className="grid flex-1 gap-2">
-            <Input
-              id="report-name"
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              placeholder="예: LCK 2025"
-            />
+            <Textarea placeholder="JSON 텍스트" onChange={(e) => setDraftText(e.target.value)} id="report-text" />
           </div>
         </div>
         <DialogFooter className="sm:justify-start">

@@ -7,6 +7,7 @@ import { persist } from "zustand/middleware";
 type StatReportStoreType = {
   statReports: StatReport[];
   add: (report: StatReport) => void;
+  addMany: (report: StatReport[]) => void;
   remove: (name: string) => void;
   update: (name: string, data: Partial<StatReport>) => void;
   find: (name: string) => StatReport | null;
@@ -21,6 +22,10 @@ export const useStatReportStore = create<StatReportStoreType>()(
       add: (report) =>
         set((state) => {
           state.statReports.push(report);
+        }),
+      addMany: (reports: StatReport[]) =>
+        set((state) => {
+          state.statReports.push(...reports);
         }),
       remove: (name) =>
         set((state) => {
@@ -46,7 +51,7 @@ export const useStatReportStore = create<StatReportStoreType>()(
           const report = state.statReports.find((r) => r.name === reportName);
 
           if (report) {
-              report.matchRecords = report.matchRecords.filter((r: MatchRecord) => r.name !== matchRecordName);
+            report.matchRecords = report.matchRecords.filter((r: MatchRecord) => r.name !== matchRecordName);
           }
         }),
     })),

@@ -71,7 +71,6 @@ export default function Page() {
     <div className="flex flex-wrap justify-center gap-6">
       {filterSets.map((dataSet, index) => {
         const name = dataSet.label;
-        console.log("name", dataSet);
         if (!average) {
           return;
         }

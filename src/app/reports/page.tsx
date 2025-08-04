@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CreateReportDialog } from "@/ui/CreateReportDialog";
+import { ImportStatReport } from "@/ui/ImportStatReport";
 import { StatReport } from "@/types/statReport";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { PlusCircleIcon } from "lucide-react";
 import Link from "next/dist/client/link";
 import { useStatReportStore } from "@/store/store";
 import { StatReportCard } from "@/ui/StatReportCard";
+import { ExportStatReport } from "@/ui/ExportStatReport";
 
 export default function page() {
   const reports = useStatReportStore((state) => state.statReports);
@@ -20,7 +21,8 @@ export default function page() {
         </Button>
       </Link>
 
-      <CreateReportDialog />
+      <ImportStatReport />
+      <ExportStatReport />
 
       <div>
         {reports.map((report) => {
