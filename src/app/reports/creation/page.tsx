@@ -7,6 +7,7 @@ import { StatReport } from "@/types/statReport";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function Page() {
           <StatDefinitionInput />
           <ProfileDefinitionInput />
 
-          <button type="submit">저장</button>
+          <Button type="submit">저장</Button>
         </form>
       </FormProvider>
     </div>

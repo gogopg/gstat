@@ -24,7 +24,7 @@ export default function page() {
       <ImportStatReport />
       <ExportStatReport />
 
-      <div>
+        <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
         {reports.map((report) => {
           return <StatReportCard key={report.name} statReport={report}></StatReportCard>;
         })}
