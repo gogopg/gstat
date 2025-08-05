@@ -26,13 +26,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <header className="fixed top-0 left-0 z-50 w-full border-b bg-white shadow">
-          <TopBar />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <header className="w-full border-b">
+          <link
+              rel="stylesheet"
+              href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+          />
+          <div className="mx-auto w-full max-w-[1200px] px-6">
+            <TopBar />
+          </div>
         </header>
-        <main className="mx-auto max-w-screen-lg px-4 pt-16">{children}</main>
+        <main className="mx-auto w-full max-w-[1200px] px-6 py-8">{children}</main>
       </body>
     </html>
   );
