@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Page() {
   const router = useRouter();
@@ -35,14 +36,21 @@ export default function Page() {
   });
 
   return (
-    <div>
+    <div className="flex flex-col w-1/3 gap-8">
+      <label className="font-bold text-3xl">새 리포트 추가</label>
       <FormProvider {...methods}>
-        <form onSubmit={onSubmit}>
-          <input {...methods.register("name")} placeholder="report 이름" />
+        <form onSubmit={onSubmit} className="flex flex-col gap-8">
+          <div className="flex flex-col gap-2">
+            <label className="font-bold text-lg">리포트 이름</label>
+            <Input {...methods.register("name")} placeholder="리포트 이름" />
+          </div>
           <StatDefinitionInput />
           <ProfileDefinitionInput />
 
-          <Button type="submit">저장</Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" type="button" className="flex w-1/3" onClick={router.back}>취소</Button>
+            <Button className="flex w-1/3" type="submit">저장</Button>
+          </div>
         </form>
       </FormProvider>
     </div>

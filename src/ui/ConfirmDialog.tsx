@@ -7,8 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { PlusCircleIcon, Trash, TrashIcon } from "lucide-react";
+import { TrashIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useStatReportStore } from "@/store/store";
 

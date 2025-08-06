@@ -1,12 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React from "react";
+import React, { useState } from "react";
 import { StatReport } from "@/types/statReport";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/ui/ConfirmDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { EllipsisVerticalIcon } from "lucide-react";
 
 type StatReportCardType = {
@@ -14,6 +12,7 @@ type StatReportCardType = {
 };
 
 export function StatReportCard({ statReport }: StatReportCardType) {
+  const [popOverFlag, setPopOverFlag] = useState(false);
   const router = useRouter();
 
   const clickPopover = (e: React.MouseEvent) => {
@@ -21,7 +20,7 @@ export function StatReportCard({ statReport }: StatReportCardType) {
   };
   return (
     <Card
-      className="max-w-[360px] min-w-[240px] grow basis-[240px] rounded border shadow cursor-pointer hover:shadow-lg transition-shadow"
+      className="max-w-[360px] min-w-[240px] grow basis-[240px] cursor-pointer rounded border shadow transition-shadow hover:shadow-lg"
       onClick={() => router.push(`/reports/${statReport.name}`)}
     >
       <CardHeader>
