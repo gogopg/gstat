@@ -14,6 +14,7 @@ import { useStatReportStore } from "@/store/store";
 import { useParams, useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";
 
 type MatchRecordInput = {
   matchRecords: {
@@ -77,43 +78,42 @@ export default function Page() {
     recordMethods.reset();
   };
 
-  const deleteRecord = (recordName: string) => {
-    useStatReportStore.getState().deleteMatchRecord(statReport?.name, recordName);
-  };
-
   if (!statReport) {
     return <div>해당 보고서를 찾을 수 없습니다.</div>;
   }
 
   return (
-    <div>
+    <div className="flex w-fit flex-col gap-8">
+      <p className="text-3xl font-bold">{statReport.name}</p>
       <Button
+        variant="blue"
         onClick={() => {
           router.push(`/reports/${id}/graph`);
         }}
       >
         그래프
       </Button>
-      <Label>스텟</Label>
-      {statReport.statDefinitions.map((item) => (
-        <Badge key={`stat-${item.value}`}>{item.value}</Badge>
-      ))}
-      <Label>프로필</Label>
-      {statReport.profileDefinitions.map((item) => (
-        <Badge key={`profile-${item.name}`}>{item.name}</Badge>
-      ))}
+      <div className="flex flex-col gap-1">
+        <p className="text-lg font-bold">스텟</p>
+        <div className="flex gap-0.5">
+          {statReport.statDefinitions.map((item) => (
+            <Badge className="bg-blue-400" key={`stat-${item.value}`}>
+              {item.value}
+            </Badge>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <Label className="text-lg font-bold">프로필</Label>
+        <div className="flex gap-0.5">
+          {statReport.profileDefinitions.map((item) => (
+            <Badge className="bg-red-600" key={`profile-${item.name}`}>
+              {item.name}
+            </Badge>
+          ))}
+        </div>
+      </div>
 
-      {!createRecordFlag && (
-        <Button
-          type="button"
-          variant="ghost"
-          className="flex items-center gap-1"
-          onClick={() => setCreateRecordFlag(true)}
-        >
-          <CirclePlusIcon className="h-4 w-4" />
-          기록 추가
-        </Button>
-      )}
       {createRecordFlag && (
         <div>
           <FormProvider {...recordMethods}>
@@ -136,47 +136,53 @@ export default function Page() {
         </div>
       )}
 
-      <div className="p-4">
-        <h3 className="mb-4 text-lg leading-none font-bold font-medium">매치 기록 목록</h3>
-        <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
-          {statReport.matchRecords.map((record) => (
-            <AccordionItem value={record.name} key={record.name}>
-              <AccordionTrigger>{record.name}</AccordionTrigger>
-              <AccordionContent className="flex flex-col gap-4 text-balance">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="inline-flex text-red-500"
-                  aria-label="새 리포트 추가"
-                  onClick={() => {
-                    deleteRecord(record.name);
-                  }}
-                >
-                  <TrashIcon className="h-5 w-5" />
-                  기록 삭제
-                </Button>
+      <div>
+        <div className="flex items-center mb-2">
+          <label className="text-lg font-bold">매치 기록 목록</label>
+          {!createRecordFlag && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="flex items-center gap-1 text-blue-500"
+              onClick={() => setCreateRecordFlag(true)}
+            >
+              <CirclePlusIcon className="h-4 w-4" />
+              기록 추가
+            </Button>
+          )}
+        </div>
 
-                {record.profileRecords.map((profile) => (
-                  <Card className="w-full max-w-sm" key={`${profile.name}`}>
-                    <CardHeader>
-                      <CardTitle>{profile.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {Object.entries(profile.stats).map(([key, value]) => {
-                        return (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{key}</span>
-                            <span>{value}</span>
-                          </div>
-                        );
-                      })}
-                    </CardContent>
-                  </Card>
-                ))}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+          <Accordion type="single" collapsible className="flex flex-col gap-2 w-full" defaultValue="item-1">
+            {statReport.matchRecords.map((record) => (
+              <AccordionItem className="bg-white border rounded-md shadow-sm px-4 py-3" value={record.name} key={record.name}>
+                <AccordionTrigger>{record.name}</AccordionTrigger>
+                <AccordionContent className="flex flex-col gap-4 text-balance">
+                  <DeleteConfirmDialog
+                      title={`${record.name} 기록 삭제`}
+                      description={`${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
+                      executeFunction={() => useStatReportStore.getState().deleteMatchRecord(statReport?.name, record.name)}
+                  />
+                  {record.profileRecords.map((profile) => (
+                    <Card className="w-full max-w-sm" key={`${profile.name}`}>
+                      <CardHeader>
+                        <CardTitle>{profile.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {Object.entries(profile.stats).map(([key, value]) => {
+                          return (
+                            <div key={key} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{key}</span>
+                              <span>{value}</span>
+                            </div>
+                          );
+                        })}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
       </div>
     </div>
   );

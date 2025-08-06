@@ -9,13 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import { TrashIcon } from "lucide-react";
 import React, { useState } from "react";
-import { useStatReportStore } from "@/store/store";
 
-type ConfirmDialogType = {
-  reportName: string;
+export type DeleteConfirmDialogType = {
+  title: string;
+  description: string;
+  executeFunction: () => void
 };
 
-export function ConfirmDialog({ reportName }: ConfirmDialogType) {
+export function DeleteConfirmDialog({ executeFunction, title, description }: DeleteConfirmDialogType) {
   const [open, setOpen] = useState(false);
 
   const deleteClick = (e: React.MouseEvent) => {
@@ -25,7 +26,7 @@ export function ConfirmDialog({ reportName }: ConfirmDialogType) {
 
   const confirmClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    useStatReportStore.getState().remove(reportName);
+    executeFunction();
     setOpen(false);
   };
 
@@ -40,7 +41,7 @@ export function ConfirmDialog({ reportName }: ConfirmDialogType) {
         type="button"
         variant="ghost"
         className="inline-flex text-red-500"
-        aria-label="새 리포트 추가"
+        aria-label={title}
         onClick={deleteClick}
       >
         <TrashIcon className="h-5 w-5" />
@@ -48,8 +49,8 @@ export function ConfirmDialog({ reportName }: ConfirmDialogType) {
       </Button>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>{reportName} 리포트 삭제</DialogTitle>
-          <DialogDescription>{reportName} 리포트를 삭제합니다. 삭제하면 복구할 수 없습니다.</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-end">
           <Button type="button" variant="secondary" onClick={cancelClick}>

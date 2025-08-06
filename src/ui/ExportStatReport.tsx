@@ -44,9 +44,6 @@ export function ExportStatReport() {
         </DialogHeader>
         <DialogDescription>리포트 텍스트를 저장하세요.</DialogDescription>
         <div>
-          <Button type="button" onClick={copyToClipboard}>
-            클립보드로 복사
-          </Button>
           <div className="flex items-center gap-2">
             <div className="grid flex-1 gap-2">
               <Textarea placeholder="JSON 텍스트" readOnly={true} value={reportText} />
@@ -54,9 +51,14 @@ export function ExportStatReport() {
           </div>
         </div>
         <DialogFooter className="sm:justify-end">
-          <Button type="button" onClick={() => setOpen(false)}>
-            확인
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" type="button" onClick={copyToClipboard}>
+              클립보드로 복사
+            </Button>
+            <Button type="button" onClick={() => setOpen(false)}>
+              확인
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
