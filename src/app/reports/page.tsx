@@ -15,7 +15,7 @@ export default function page() {
 
   return (
     <div>
-      <Link href="/reports/creation">
+      <Link href="/reports/create">
         <Button type="button" variant="ghost" className="inline-flex text-blue-500" aria-label="새 리포트 추가">
           <PlusCircleIcon className="h-5 w-5" />새 리포트 추가
         </Button>

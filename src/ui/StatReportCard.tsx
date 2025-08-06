@@ -21,7 +21,7 @@ export function StatReportCard({ statReport }: StatReportCardType) {
   };
   return (
     <Card
-      className="max-w-[360px] min-w-[240px] grow basis-[240px] rounded border shadow cursor-pointer"
+      className="max-w-[360px] min-w-[240px] grow basis-[240px] rounded border shadow cursor-pointer hover:shadow-lg transition-shadow"
       onClick={() => router.push(`/reports/${statReport.name}`)}
     >
       <CardHeader>
