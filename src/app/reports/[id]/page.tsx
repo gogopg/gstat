@@ -67,7 +67,6 @@ export default function Page() {
       }
     }
     newMatchRecord.profileRecords.push(...Array.from(resultMap.values()));
-
     useStatReportStore.getState().addMatchRecord(statReport?.name, newMatchRecord);
 
     cancelRecordInput();
@@ -83,34 +82,37 @@ export default function Page() {
   }
 
   return (
-    <div className="flex w-fit flex-col gap-8">
-      <p className="text-3xl font-bold">{statReport.name}</p>
-      <Button
-        variant="blue"
-        onClick={() => {
-          router.push(`/reports/${id}/graph`);
-        }}
-      >
-        그래프
-      </Button>
-      <div className="flex flex-col gap-1">
-        <p className="text-lg font-bold">스텟</p>
-        <div className="flex gap-0.5">
-          {statReport.statDefinitions.map((item) => (
-            <Badge className="bg-blue-400" key={`stat-${item.value}`}>
-              {item.value}
-            </Badge>
-          ))}
+    <div className="flex w-full flex-col gap-8">
+      <div className="flex flex-col w-1/2 gap-4">
+        <p className="text-3xl font-bold">{statReport.name}</p>
+
+        <Button
+          variant="blue"
+          onClick={() => {
+            router.push(`/reports/${id}/graph`);
+          }}
+        >
+          그래프
+        </Button>
+        <div className="flex flex-col gap-1">
+          <p className="text-lg font-bold">스텟</p>
+          <div className="flex gap-0.5">
+            {statReport.statDefinitions.map((item) => (
+              <Badge className="bg-blue-400" key={`stat-${item.value}`}>
+                {item.value}
+              </Badge>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col gap-1">
-        <Label className="text-lg font-bold">프로필</Label>
-        <div className="flex gap-0.5">
-          {statReport.profileDefinitions.map((item) => (
-            <Badge className="bg-red-600" key={`profile-${item.name}`}>
-              {item.name}
-            </Badge>
-          ))}
+        <div className="flex flex-col gap-1">
+          <p className="text-lg font-bold">프로필</p>
+          <div className="flex gap-0.5">
+            {statReport.profileDefinitions.map((item) => (
+              <Badge className="bg-red-600" key={`profile-${item.name}`}>
+                {item.name}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -137,8 +139,8 @@ export default function Page() {
       )}
 
       <div>
-        <div className="flex items-center mb-2">
-          <label className="text-lg font-bold">매치 기록 목록</label>
+        <div className="mb-2 flex items-center">
+          <p className="text-lg font-bold">매치 기록 목록</p>
           {!createRecordFlag && (
             <Button
               type="button"
@@ -152,18 +154,27 @@ export default function Page() {
           )}
         </div>
 
-          <Accordion type="single" collapsible className="flex flex-col gap-2 w-full" defaultValue="item-1">
-            {statReport.matchRecords.map((record) => (
-              <AccordionItem className="bg-white border rounded-md shadow-sm px-4 py-3" value={record.name} key={record.name}>
-                <AccordionTrigger>{record.name}</AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <DeleteConfirmDialog
-                      title={`${record.name} 기록 삭제`}
-                      description={`${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
-                      executeFunction={() => useStatReportStore.getState().deleteMatchRecord(statReport?.name, record.name)}
-                  />
+        <Accordion type="single" collapsible className="flex w-full flex-col gap-2" defaultValue="item-1">
+          {statReport.matchRecords.map((record) => (
+            <AccordionItem
+              className="rounded-md border bg-white px-4 py-3 shadow-sm"
+              value={record.name}
+              key={record.name}
+            >
+              <div className="flex w-full items-center justify-between">
+                <div className="flex-1">
+                  <AccordionTrigger className="flex-1 cursor-pointer">{record.name}</AccordionTrigger>
+                </div>
+                <DeleteConfirmDialog
+                  title={`${record.name} 기록 삭제`}
+                  description={`${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
+                  executeFunction={() => useStatReportStore.getState().deleteMatchRecord(statReport?.name, record.name)}
+                />
+              </div>
+              <AccordionContent className="flex w-full flex-col gap-4 text-balance">
+                <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
                   {record.profileRecords.map((profile) => (
-                    <Card className="w-full max-w-sm" key={`${profile.name}`}>
+                    <Card className="min-w-50 max-w-sm" key={`${profile.name}`}>
                       <CardHeader>
                         <CardTitle>{profile.name}</CardTitle>
                       </CardHeader>
@@ -179,10 +190,11 @@ export default function Page() {
                       </CardContent>
                     </Card>
                   ))}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </div>
   );
