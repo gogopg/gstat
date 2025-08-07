@@ -5,11 +5,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { StatDefinition } from "@/types/profile";
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { StatDefinition } from "@/types/statReport";
 
 type MatchRecordCardType = {
   profileName: string;

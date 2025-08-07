@@ -1,8 +1,7 @@
 "use client";
 
 import { MatchRecordCard } from "@/ui/MatchRecordCard";
-import { StatDefinition } from "@/types/profile";
-import { ProfileDefinition } from "@/types/statReport";
+import { ProfileDefinition, StatDefinition } from "@/types/statReport";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from "react-hook-form";

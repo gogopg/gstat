@@ -2,18 +2,16 @@
 
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
 import Link from "next/link";
 
 export default function TopBar() {
   return (
-    <header className="flex h-[64px] items-center ">
+    <header className="flex h-[64px] items-center">
       <div className="flex items-center">
         <Link href="/">
           <span className="text-[24px] font-bold tracking-tight">gStats</span>
@@ -27,17 +25,15 @@ export default function TopBar() {
               <Link href="/reports">리포트</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
-            <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                    <Link href="/reports">리포트</Link>
-                </NavigationMenuLink>
-            </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link href="/reports">리포트</Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 
-      <div className="flex items-center gap-6">
-
-      </div>
+      <div className="flex items-center gap-6"></div>
     </header>
   );
 }

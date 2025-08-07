@@ -1,5 +1,4 @@
-import { MatchRecord } from "@/types/matchRecord";
-import { StatDefinition } from "@/types/profile";
+import { MatchRecord, StatDefinition } from "@/types/statReport";
 
 function normalize(value: number, min: number, max: number): number {
     return Math.max(0, Math.min(1, (value - min) / (max - min)));

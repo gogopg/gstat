@@ -13,7 +13,6 @@ type StatReportCardType = {
 };
 
 export function StatReportCard({ statReport }: StatReportCardType) {
-  const [popOverFlag, setPopOverFlag] = useState(false);
   const router = useRouter();
 
   const clickPopover = (e: React.MouseEvent) => {

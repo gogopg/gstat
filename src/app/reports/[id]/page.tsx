@@ -7,13 +7,12 @@ import { CirclePlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
 import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
-import { MatchRecord } from "@/types/matchRecord";
-import { ProfileRecord } from "@/types/profile";
 import { useStatReportStore } from "@/store/store";
 import { useParams, useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";
+import { MatchRecord, ProfileRecord } from "@/types/statReport";
 
 type MatchRecordInput = {
   matchRecords: {
