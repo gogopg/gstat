@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label";
 import { StatDefinition } from "@/types/profile";
 import { Input } from "@/components/ui/input";
 import React from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { TrashIcon } from "lucide-react";
 
 type MatchRecordCardType = {
   profileName: string;
@@ -23,11 +22,12 @@ export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: 
   const statLength = statDefinitions.length;
 
   return (
-    <Card className="w-full max-w-sm" key={`${profileName}`}>
+    <Card className="max-w-sm min-w-50" key={`${profileName}`}>
       <CardHeader>
         <CardTitle>{profileName}</CardTitle>
       </CardHeader>
       <CardContent>
+          <div className="flex flex-col gap-1">
         {statDefinitions.map((statDefinition, index) => {
           return (
             <FormField
@@ -37,9 +37,9 @@ export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: 
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <div className="flex items-center gap-2">
-                      <Label>{statDefinition.value}</Label>
-                      <Input {...field} value={field.value ?? ""} placeholder={statDefinition.value} />
+                    <div className="flex items-center justify-between gap-2 text-sm">
+                      <Label className="text-muted-foreground w-1/2">{statDefinition.value}</Label>
+                      <Input className="w-1/2" {...field} value={field.value ?? ""} placeholder={statDefinition.value} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -48,6 +48,7 @@ export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: 
             />
           );
         })}
+          </div>
       </CardContent>
     </Card>
   );

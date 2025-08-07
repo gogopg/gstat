@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
-import { CirclePlusIcon, TrashIcon, X } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { CirclePlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
 import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
@@ -83,7 +82,7 @@ export default function Page() {
 
   return (
     <div className="flex w-full flex-col gap-8">
-      <div className="flex flex-col w-1/2 gap-4">
+      <div className="flex w-1/2 flex-col gap-4">
         <p className="text-3xl font-bold">{statReport.name}</p>
 
         <Button
@@ -122,19 +121,10 @@ export default function Page() {
             <CreateMatchRecordInput
               statDefinitions={statReport.statDefinitions}
               profileDefinitions={statReport.profileDefinitions}
+              executeFunctionAction={() => recordMethods.handleSubmit(addMatchRecord)()}
+              cancelFunctionAction={cancelRecordInput}
             />
           </FormProvider>
-          <Button
-            type="button"
-            variant="ghost"
-            className="flex items-center gap-1"
-            onClick={recordMethods.handleSubmit(addMatchRecord)}
-          >
-            입력
-          </Button>
-          <Button type="button" variant="ghost" className="flex items-center gap-1" onClick={cancelRecordInput}>
-            취소
-          </Button>
         </div>
       )}
 
@@ -154,47 +144,51 @@ export default function Page() {
           )}
         </div>
 
-        <Accordion type="single" collapsible className="flex w-full flex-col gap-2" defaultValue="item-1">
-          {statReport.matchRecords.map((record) => (
-            <AccordionItem
-              className="rounded-md border bg-white px-4 py-3 shadow-sm"
-              value={record.name}
-              key={record.name}
-            >
-              <div className="flex w-full items-center justify-between">
-                <div className="flex-1">
-                  <AccordionTrigger className="flex-1 cursor-pointer">{record.name}</AccordionTrigger>
+        <div>
+          <Accordion type="single" collapsible className="flex w-full flex-col gap-2" defaultValue="item-1">
+            {statReport.matchRecords.map((record) => (
+              <AccordionItem
+                className="rounded-md border bg-white px-4 py-3 shadow-sm"
+                value={record.name}
+                key={record.name}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <div className="flex-1">
+                    <AccordionTrigger className="flex-1 cursor-pointer">{record.name}</AccordionTrigger>
+                  </div>
+                  <DeleteConfirmDialog
+                    title={`${record.name} 기록 삭제`}
+                    description={`${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
+                    executeFunction={() =>
+                      useStatReportStore.getState().deleteMatchRecord(statReport?.name, record.name)
+                    }
+                  />
                 </div>
-                <DeleteConfirmDialog
-                  title={`${record.name} 기록 삭제`}
-                  description={`${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
-                  executeFunction={() => useStatReportStore.getState().deleteMatchRecord(statReport?.name, record.name)}
-                />
-              </div>
-              <AccordionContent className="flex w-full flex-col gap-4 text-balance">
-                <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-                  {record.profileRecords.map((profile) => (
-                    <Card className="min-w-50 max-w-sm" key={`${profile.name}`}>
-                      <CardHeader>
-                        <CardTitle>{profile.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {Object.entries(profile.stats).map(([key, value]) => {
-                          return (
-                            <div key={key} className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{key}</span>
-                              <span>{value}</span>
-                            </div>
-                          );
-                        })}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+                <AccordionContent className="flex w-full flex-col gap-4 text-balance">
+                  <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+                    {record.profileRecords.map((profile) => (
+                      <Card className="max-w-sm min-w-50" key={`${profile.name}`}>
+                        <CardHeader>
+                          <CardTitle>{profile.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {Object.entries(profile.stats).map(([key, value]) => {
+                            return (
+                              <div key={key} className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">{key}</span>
+                                <span>{value}</span>
+                              </div>
+                            );
+                          })}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </div>
     </div>
   );
