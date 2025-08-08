@@ -12,7 +12,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";
-import { StatRecord, ProfileRecord } from "@/types/report";
+import { PerformanceRecord, ProfileRecord } from "@/types/report";
 
 type StatRecordInput = {
   statRecords: {
@@ -38,7 +38,7 @@ export default function Page() {
   );
 
   const addStatRecord = (rawData: StatRecordInput) => {
-    const newStatRecord: StatRecord = {
+    const newStatRecord: PerformanceRecord = {
       name: rawData.statRecordName,
       enterDate: new Date(),
       profileRecords: [],
@@ -145,7 +145,7 @@ export default function Page() {
 
         <div>
           <Accordion type="single" collapsible className="flex w-full flex-col gap-2" defaultValue="item-1">
-            {statReport.statRecords.map((record) => (
+            {statReport.performanceRecords.map((record) => (
               <AccordionItem
                 className="rounded-md border bg-white px-4 py-3 shadow-sm"
                 value={record.name}

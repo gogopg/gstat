@@ -1,11 +1,11 @@
-import { StatRecord, StatDefinition } from "@/types/report";
+import { PerformanceRecord, StatDefinition } from "@/types/report";
 
 function normalize(value: number, min: number, max: number): number {
     return Math.max(0, Math.min(1, (value - min) / (max - min)));
 }
 
 export function buildRadarChartData(
-    statRecords: StatRecord[],
+    statRecords: PerformanceRecord[],
     statDefinition: StatDefinition[]
 ) {
     const statKeys = statDefinition.map((def) => def.value);

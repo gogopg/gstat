@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { StatReport } from "@/types/report";
-import { StatRecord } from "@/types/statRecord";
+import { MatchRecord, PerformanceRecord } from "@/types/report";
 import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 
@@ -11,8 +11,10 @@ type StatReportStoreType = {
   remove: (name: string) => void;
   update: (name: string, data: Partial<StatReport>) => void;
   find: (name: string) => StatReport | null;
-  addStatRecord(name: any, newStatRecord: StatRecord): void;
-  deleteStatRecord(reportName: string | undefined, statRecordName: string): void;
+  addPerformanceRecord: (name: string, record: PerformanceRecord) => void;
+  deletePerformanceRecord: (reportName: string, recordName: string) => void;
+  addMatchRecord: (name: string, record: MatchRecord) => void;
+  deleteMatchRecord: (reportName: string, matchName: string) => void;
 };
 
 export const useStatReportStore = create<StatReportStoreType>()(
@@ -39,20 +41,34 @@ export const useStatReportStore = create<StatReportStoreType>()(
       find: (name: string) => {
         return get().statReports.find((item: StatReport) => item.name === name) || null;
       },
-      addStatRecord: (name: string, record: StatRecord) =>
+      // ---------- Performance ----------
+      addPerformanceRecord: (name, record) =>
         set((state) => {
-          const report = state.statReports.find((r) => r.name === name);
-          if (report) {
-            report.statRecords.push(record);
-          }
+          const r = state.statReports.find((x) => x.name === name && x.type === "performance");
+          if (!r || r.type !== "performance") return;
+          r.report.performanceRecords.push(record);
         }),
-      deleteStatRecord: (reportName, statRecordName) =>
-        set((state) => {
-          const report = state.statReports.find((r) => r.name === reportName);
 
-          if (report) {
-            report.statRecords = report.statRecords.filter((r: StatRecord) => r.name !== statRecordName);
-          }
+      deletePerformanceRecord: (reportName, recordName) =>
+        set((state) => {
+          const r = state.statReports.find((x) => x.name === reportName && x.type === "performance");
+          if (!r || r.type !== "performance") return;
+          r.report.performanceRecords = r.report.performanceRecords.filter((p) => p.name !== recordName);
+        }),
+
+      // ---------- Elo ----------
+      addMatchRecord: (name, record) =>
+        set((state) => {
+          const r = state.statReports.find((x) => x.name === name && x.type === "elo");
+          if (!r || r.type !== "elo") return;
+          r.report.matchRecords.push(record);
+        }),
+
+      deleteMatchRecord: (reportName, matchName) =>
+        set((state) => {
+          const r = state.statReports.find((x) => x.name === reportName && x.type === "elo");
+          if (!r || r.type !== "elo") return;
+          r.report.matchRecords = r.report.matchRecords.filter((m) => m.name !== matchName);
         }),
     })),
     {
