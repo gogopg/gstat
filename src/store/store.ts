@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { StatReport } from "@/types/statReport";
-import { MatchRecord } from "@/types/matchRecord";
+import { StatReport } from "@/types/report";
+import { StatRecord } from "@/types/statRecord";
 import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 
@@ -11,8 +11,8 @@ type StatReportStoreType = {
   remove: (name: string) => void;
   update: (name: string, data: Partial<StatReport>) => void;
   find: (name: string) => StatReport | null;
-  addMatchRecord(name: any, newMatchRecord: MatchRecord): void;
-  deleteMatchRecord(reportName: string | undefined, matchRecordName: string): void;
+  addStatRecord(name: any, newStatRecord: StatRecord): void;
+  deleteStatRecord(reportName: string | undefined, statRecordName: string): void;
 };
 
 export const useStatReportStore = create<StatReportStoreType>()(
@@ -39,19 +39,19 @@ export const useStatReportStore = create<StatReportStoreType>()(
       find: (name: string) => {
         return get().statReports.find((item: StatReport) => item.name === name) || null;
       },
-      addMatchRecord: (name: string, record: MatchRecord) =>
+      addStatRecord: (name: string, record: StatRecord) =>
         set((state) => {
           const report = state.statReports.find((r) => r.name === name);
           if (report) {
-            report.matchRecords.push(record);
+            report.statRecords.push(record);
           }
         }),
-      deleteMatchRecord: (reportName, matchRecordName) =>
+      deleteStatRecord: (reportName, statRecordName) =>
         set((state) => {
           const report = state.statReports.find((r) => r.name === reportName);
 
           if (report) {
-            report.matchRecords = report.matchRecords.filter((r: MatchRecord) => r.name !== matchRecordName);
+            report.statRecords = report.statRecords.filter((r: StatRecord) => r.name !== statRecordName);
           }
         }),
     })),

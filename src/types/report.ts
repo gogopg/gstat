@@ -6,7 +6,7 @@ export type ProfileRecord = {
   stats: StatValue;
   count: number;
 };
-export type MatchRecord = {
+export type StatRecord = {
   name: string;
   enterDate: Date;
   profileRecords: ProfileRecord[];
@@ -15,5 +15,5 @@ export type StatReport = {
   name: string;
   statDefinitions: StatDefinition[];
   profileDefinitions: ProfileDefinition[];
-  matchRecords: MatchRecord[];
+  statRecords: StatRecord[];
 };

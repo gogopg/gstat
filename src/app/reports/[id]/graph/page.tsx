@@ -28,10 +28,10 @@ export default function Page() {
     return <div>자료 오류</div>;
   }
 
-  const matchRecord = statReport.matchRecords;
+  const statRecord = statReport.statRecords;
   const statDef = statReport.statDefinitions.map((stat) => stat.value);
 
-  const { labels, datasets } = buildRadarChartData(matchRecord, statReport.statDefinitions);
+  const { labels, datasets } = buildRadarChartData(statRecord, statReport.statDefinitions);
 
   console.log("datasets", datasets);
 

@@ -3,7 +3,7 @@
 import StatDefinitionInput from "@/ui/StatDefinitionInput";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { StatReport } from "@/types/statReport";
+import { StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
@@ -18,7 +18,7 @@ export default function Page() {
       name: "",
       statDefinitions: [],
       profileDefinitions: [],
-      matchRecords: [],
+      statRecords: [],
     },
   });
 
@@ -26,7 +26,7 @@ export default function Page() {
     const newStatReport: StatReport = {
       statDefinitions: data.statDefinitions,
       profileDefinitions: data.profileDefinitions,
-      matchRecords: [],
+      statRecords: [],
       name: data.name,
     };
 

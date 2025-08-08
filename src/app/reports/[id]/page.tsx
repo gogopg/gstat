@@ -6,27 +6,27 @@ import { Badge } from "@/components/ui/badge";
 import { CirclePlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
-import CreateMatchRecordInput from "@/ui/CreateMatchRecordInput";
+import CreateStatRecordInput from "@/ui/CreateStatRecordInput";
 import { useStatReportStore } from "@/store/store";
 import { useParams, useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";
-import { MatchRecord, ProfileRecord } from "@/types/statReport";
+import { StatRecord, ProfileRecord } from "@/types/report";
 
-type MatchRecordInput = {
-  matchRecords: {
+type StatRecordInput = {
+  statRecords: {
     [profileKey: string]: {
       [statKey: string]: string;
     };
   };
-  matchRecordName: string;
+  statRecordName: string;
 };
 export default function Page() {
-  const recordMethods = useForm<MatchRecordInput>({
+  const recordMethods = useForm<StatRecordInput>({
     defaultValues: {
-      matchRecords: {},
-      matchRecordName: "",
+      statRecords: {},
+      statRecordName: "",
     },
   });
   const { id } = useParams();
@@ -37,17 +37,17 @@ export default function Page() {
     state.statReports.find((r) => r.name === decodeURIComponent(id as string)),
   );
 
-  const addMatchRecord = (rawData: MatchRecordInput) => {
-    const newMatchRecord: MatchRecord = {
-      name: rawData.matchRecordName,
+  const addStatRecord = (rawData: StatRecordInput) => {
+    const newStatRecord: StatRecord = {
+      name: rawData.statRecordName,
       enterDate: new Date(),
       profileRecords: [],
     };
 
-    const matchRecordList = Object.values(rawData.matchRecords);
+    const statRecordList = Object.values(rawData.statRecords);
     const resultMap = new Map<string, ProfileRecord>();
 
-    for (const record of matchRecordList) {
+    for (const record of statRecordList) {
       const profileName = Object.keys(record)[0];
       const statObj = record[profileName];
 
@@ -64,8 +64,8 @@ export default function Page() {
         }
       }
     }
-    newMatchRecord.profileRecords.push(...Array.from(resultMap.values()));
-    useStatReportStore.getState().addMatchRecord(statReport?.name, newMatchRecord);
+    newStatRecord.profileRecords.push(...Array.from(resultMap.values()));
+    useStatReportStore.getState().addStatRecord(statReport?.name, newStatRecord);
 
     cancelRecordInput();
   };
@@ -117,10 +117,10 @@ export default function Page() {
       {createRecordFlag && (
         <div>
           <FormProvider {...recordMethods}>
-            <CreateMatchRecordInput
+            <CreateStatRecordInput
               statDefinitions={statReport.statDefinitions}
               profileDefinitions={statReport.profileDefinitions}
-              executeFunctionAction={() => recordMethods.handleSubmit(addMatchRecord)()}
+              executeFunctionAction={() => recordMethods.handleSubmit(addStatRecord)()}
               cancelFunctionAction={cancelRecordInput}
             />
           </FormProvider>
@@ -145,7 +145,7 @@ export default function Page() {
 
         <div>
           <Accordion type="single" collapsible className="flex w-full flex-col gap-2" defaultValue="item-1">
-            {statReport.matchRecords.map((record) => (
+            {statReport.statRecords.map((record) => (
               <AccordionItem
                 className="rounded-md border bg-white px-4 py-3 shadow-sm"
                 value={record.name}
@@ -159,7 +159,7 @@ export default function Page() {
                     title={`${record.name} 기록 삭제`}
                     description={`${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
                     executeFunction={() =>
-                      useStatReportStore.getState().deleteMatchRecord(statReport?.name, record.name)
+                      useStatReportStore.getState().deleteStatRecord(statReport?.name, record.name)
                     }
                   />
                 </div>

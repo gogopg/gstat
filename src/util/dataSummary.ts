@@ -1,11 +1,11 @@
-import { MatchRecord, StatDefinition } from "@/types/statReport";
+import { StatRecord, StatDefinition } from "@/types/report";
 
 function normalize(value: number, min: number, max: number): number {
     return Math.max(0, Math.min(1, (value - min) / (max - min)));
 }
 
 export function buildRadarChartData(
-    matchRecords: MatchRecord[],
+    statRecords: StatRecord[],
     statDefinition: StatDefinition[]
 ) {
     const statKeys = statDefinition.map((def) => def.value);
@@ -16,7 +16,7 @@ export function buildRadarChartData(
         { totalStats: Record<string, number>; count: number }
     >();
 
-    for (const match of matchRecords) {
+    for (const match of statRecords) {
         for (const profile of match.profileRecords) {
             if (!profileMap.has(profile.name)) {
                 profileMap.set(profile.name, {
