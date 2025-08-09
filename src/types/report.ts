@@ -35,15 +35,8 @@ export type EloReport = {
 
 export type StatReport =
     | ({ type: "performance" } & ReportBase & {
-  report: { statDefinitions: StatDefinition[]; performanceRecords: PerformanceRecord[] }
+  report: PerformanceReport
 })
     | ({ type: "elo" } & ReportBase & {
-  report: { k: number; matchRecords: MatchRecord[] }
+  report: EloReport
 });
-
-export const isPerformance = (r: StatReport): r is Extract<StatReport, { type: "performance" }> =>
-    r.type === "performance";
-export const isElo = (r: StatReport): r is Extract<StatReport, { type: "elo" }> =>
-    r.type === "elo";
-
-

@@ -3,7 +3,7 @@
 import StatDefinitionInput from "@/ui/StatDefinitionInput";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { PerformanceReport, ReportType, StatReport } from "@/types/report";
+import { ReportType, StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
@@ -14,7 +14,7 @@ import { createReport } from "@/util/createReport";
 
 export default function Page() {
   const router = useRouter();
-  const [selectedType, setSelectedType] = useState<ReportType>("performance");
+  const [selectedType, setSelectedType] = useState<ReportType>("elo");
 
   const methods = useForm<StatReport>({
     defaultValues: createReport(selectedType, "", []),
@@ -22,12 +22,8 @@ export default function Page() {
   });
 
   const onSubmit = methods.handleSubmit((data) => {
-    const newStatReport: StatReport = createReport(selectedType, data.name, data.profileDefinitions);
-
-    // useStatReportStore.getState().add(newStatReport);
-    //
-    // router.push(`/reports/${data.name}`);
-    console.log("111", newStatReport);
+    useStatReportStore.getState().add(data);
+    router.push(`/reports/${data.name}`);
   });
 
   return (
@@ -52,9 +48,14 @@ export default function Page() {
             </Select>
           </div>
 
-          {selectedType === "performance" ? <StatDefinitionInput /> : null}
-
           <ProfileDefinitionInput />
+          {selectedType === "performance" ? <StatDefinitionInput /> : null}
+          {selectedType === "elo" ? <div>
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-bold">가중치</label>
+              <Input {...methods.register("report.k")} placeholder="가중치" />
+            </div>
+          </div> : null}
 
           <div className="flex gap-2">
             <Button variant="secondary" type="button" className="flex w-1/3" onClick={router.back}>

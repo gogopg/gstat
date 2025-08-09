@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState } from "react";
-import { PerformanceReport, StatReport } from "@/types/report";
+import { StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
 import { DeleteConfirmDialog, DeleteConfirmDialogType } from "@/ui/DeleteConfirmDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
