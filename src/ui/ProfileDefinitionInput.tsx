@@ -14,7 +14,6 @@ export default function ProfileDefinitionInput() {
     control,
     name: "profileDefinitions",
   });
-
   return (
     <div className="flex flex-col justify-start gap-1">
       <div className="flex items-center gap-1">
@@ -23,7 +22,7 @@ export default function ProfileDefinitionInput() {
           type="button"
           variant="ghost"
           className="flex w-fit items-center gap-1 text-blue-500"
-          onClick={() => append({ value: "" })}
+          onClick={() => append({ name: "" })}
         >
           <CirclePlusIcon className="h-4 w-4" />
           프로필 추가
@@ -41,7 +40,7 @@ export default function ProfileDefinitionInput() {
               <FormItem>
                 <FormControl>
                   <div className="flex items-center gap-2">
-                    <Input {...field} placeholder="프로필 명" />
+                    <Input {...field} placeholder="프로필 명" value={field.value ?? ""} />
                     <Button
                       type="button"
                       variant="ghost"

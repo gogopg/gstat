@@ -41,7 +41,7 @@ export default function StatDefinitionInput() {
               <FormItem>
                 <FormControl>
                   <div className="flex items-center gap-2">
-                    <Input {...field} placeholder="지표명" />
+                    <Input {...field} placeholder="지표명" value={field.value ?? ""} />
                     <Button
                       type="button"
                       variant="ghost"

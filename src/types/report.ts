@@ -22,6 +22,7 @@ export type MatchRecord = {
 export type ReportBase = {
   name: string;
   createdAt: string;
+  type: string;
   profileDefinitions: ProfileDefinition[];
 };
 export type PerformanceReport = {
