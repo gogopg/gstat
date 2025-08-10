@@ -14,7 +14,7 @@ type StatReportStoreType = {
   addPerformanceRecord: (name: string, record: PerformanceRecord) => void;
   deletePerformanceRecord: (reportName: string, recordName: string) => void;
   addMatchRecord: (name: string, record: MatchRecord) => void;
-  deleteMatchRecord: (reportName: string, matchName: string) => void;
+  deleteMatchRecord: (reportName: string, matchId: string) => void;
 };
 
 export const useStatReportStore = create<StatReportStoreType>()(
@@ -64,11 +64,11 @@ export const useStatReportStore = create<StatReportStoreType>()(
           r.report.matchRecords.push(record);
         }),
 
-      deleteMatchRecord: (reportName, matchName) =>
+      deleteMatchRecord: (reportName, matchId) =>
         set((state) => {
           const r = state.statReports.find((x) => x.name === reportName && x.type === "elo");
           if (!r || r.type !== "elo") return;
-          r.report.matchRecords = r.report.matchRecords.filter((m) => m.name !== matchName);
+          r.report.matchRecords = r.report.matchRecords.filter((m) => m.id !== matchId);
         }),
     })),
     {

@@ -71,9 +71,13 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
       </div>
 
       <div>
-        <div className="mb-2 flex items-center">
-          <p className="text-lg font-bold">기록 목록</p>
-          {!createRecordFlag && (
+        {createRecordFlag ? (
+            <div className="mb-2 flex items-center">
+          <p className="text-lg font-bold">기록 추가</p>
+            </div>
+        ) : (
+          <div className="mb-2 flex items-center">
+            <p className="text-lg font-bold">기록 목록</p>
             <Button
               type="button"
               variant="ghost"
@@ -83,10 +87,9 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
               <CirclePlusIcon className="h-4 w-4" />
               기록 추가
             </Button>
-          )}
-        </div>
-        <MatchRecordCard matchRecords={statReport.report.matchRecords}/>
-        {createRecordFlag && (
+          </div>
+        )}
+        {createRecordFlag ? (
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <FormProvider {...methods}>
               <div className="flex gap-2">
@@ -129,6 +132,8 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
               </div>
             </FormProvider>
           </form>
+        ) : (
+          <MatchRecordCard matchRecords={statReport.report.matchRecords} reportName={statReport.name}/>
         )}
       </div>
     </div>
