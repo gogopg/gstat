@@ -1,24 +1,22 @@
-import { EloReport, MatchRecord, StatReport } from "@/types/report";
+import { MatchRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckIcon, ChevronsUpDownIcon, CirclePlusIcon } from "lucide-react";
+import { CirclePlusIcon } from "lucide-react";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
 import ProfileSelectCombo from "@/ui/ProfileSelectCombo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import DatePicker from "@/ui/DatePicker";
 import { useStatReportStore } from "@/store/store";
+import MatchRecordCard from "@/ui/MatchRecordCard";
 
 type PerfReport = Extract<StatReport, { type: "elo" }>;
 
 export default function EloReportUI({ statReport }: { statReport: PerfReport }) {
   const methods = useForm<MatchRecord>({
     defaultValues: {
-      id: crypto.randomUUID(),
+      id: "",
       matchDate: new Date().toISOString(),
       name: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -34,10 +32,11 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
   };
 
   const onSubmit = methods.handleSubmit((data) => {
+    data.id = crypto.randomUUID();
     data.setResult.A > data.setResult.B ? (data.winnerSide = "A") : (data.winnerSide = "B");
     useStatReportStore.getState().addMatchRecord(statReport?.name, data);
     cancelRecordInput();
-    console.log(data);
+    methods.reset();
   });
 
   if (!statReport) {
@@ -86,6 +85,7 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
             </Button>
           )}
         </div>
+        <MatchRecordCard matchRecords={statReport.report.matchRecords}/>
         {createRecordFlag && (
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <FormProvider {...methods}>

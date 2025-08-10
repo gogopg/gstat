@@ -1,6 +1,3 @@
-import { buildRadarChartData } from "@/util/dataSummary";
-import { ChartData } from "chart.js";
-import { Radar } from "react-chartjs-2";
 import { PerformanceRecord, ProfileRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
