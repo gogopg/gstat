@@ -1,8 +1,8 @@
 "use client";
 import { useStatReportStore } from "@/store/store";
-import { useParams, useRouter } from "next/navigation";
-import { StatReport } from "@/types/report";
+import { useParams } from "next/navigation";
 import PerformanceReportUI from "@/ui/PerformanceReportUI";
+import EloReportUI from "@/ui/EloReportUI";
 
 export default function Page() {
   const { id } = useParams();
@@ -14,5 +14,10 @@ export default function Page() {
     return;
   }
 
-  return <>{statReport.type === "performance" && <PerformanceReportUI statReport={statReport} />}</>;
+  return (
+    <>
+      {statReport.type === "performance" && <PerformanceReportUI statReport={statReport} />}
+      {statReport.type === "elo" && <EloReportUI statReport={statReport} />}
+    </>
+  );
 }
