@@ -16,10 +16,10 @@ export type Side = "A" | "B";
 export type MatchRecord = {
   id: string;
   name?: string;
-  participants?: { A?: { teamId?: string; teamName?: string }; B?: { teamId?: string; teamName?: string } };
+  participants: { A: { profileId?: string; profileName: string }; B: { profileId?: string; profileName: string } };
+  setResult: { A: number, B: number }
   matchDate: string;
   createdAt: string;
-  score: { A: number; B: number };
   roster?: { A: string[]; B: string[] };
   winnerSide: Side;
 };

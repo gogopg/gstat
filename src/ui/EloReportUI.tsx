@@ -1,25 +1,44 @@
-import { StatReport } from "@/types/report";
+import { EloReport, MatchRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CirclePlusIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, CirclePlusIcon } from "lucide-react";
 import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { FormProvider, useForm } from "react-hook-form";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import ProfileSelectCombo from "@/ui/ProfileSelectCombo";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import DatePicker from "@/ui/DatePicker";
+import { useStatReportStore } from "@/store/store";
 
 type PerfReport = Extract<StatReport, { type: "elo" }>;
 
 export default function EloReportUI({ statReport }: { statReport: PerfReport }) {
-  // const recordMethods = useForm<StatRecordInput>({
-  //   defaultValues: {
-  //     statRecords: {},
-  //     statRecordName: "",
-  //   },
-  // });
+  const methods = useForm<MatchRecord>({
+    defaultValues: {
+      id: crypto.randomUUID(),
+      matchDate: new Date().toISOString(),
+      name: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      winnerSide: "A",
+      participants: { A: { profileName: "" }, B: { profileName: "" } },
+    },
+  });
 
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
 
   const cancelRecordInput = () => {
     setCreateRecordFlag(false);
   };
+
+  const onSubmit = methods.handleSubmit((data) => {
+    data.setResult.A > data.setResult.B ? (data.winnerSide = "A") : (data.winnerSide = "B");
+    useStatReportStore.getState().addMatchRecord(statReport?.name, data);
+    cancelRecordInput();
+    console.log(data);
+  });
 
   if (!statReport) {
     return <div>해당 보고서를 찾을 수 없습니다.</div>;
@@ -40,9 +59,17 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
             ))}
           </div>
         </div>
+        <div className="flex items-center gap-3">
+          <p className="text-lg font-bold">세트</p>
+          <div className="flex gap-0.5">
+            {statReport.report.bestOf} 판 {Math.ceil(statReport.report.bestOf / 2)} 선승
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <p className="text-lg font-bold">가중치</p>
+          <div className="flex gap-0.5">{statReport.report.k}</div>
+        </div>
       </div>
-
-      {createRecordFlag && <div></div>}
 
       <div>
         <div className="mb-2 flex items-center">
@@ -59,7 +86,50 @@ export default function EloReportUI({ statReport }: { statReport: PerfReport }) 
             </Button>
           )}
         </div>
-        <div></div>
+        {createRecordFlag && (
+          <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <FormProvider {...methods}>
+              <div className="flex gap-2">
+                <Label>경기 이름</Label>
+                <Input {...methods.register("name")} className="w-48" />
+              </div>
+              <div className="flex flex-col gap-4">
+                <Label>경기 날짜</Label>
+                <DatePicker />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>경기 결과</Label>
+                <div className="flex items-center gap-2">
+                  <ProfileSelectCombo
+                    side={"A"}
+                    profileDefinitions={statReport.profileDefinitions}
+                  ></ProfileSelectCombo>
+                  <Input {...methods.register("setResult.A")} type="number" className="w-24" />
+                  <p>:</p>
+                  <Input {...methods.register("setResult.B")} type="number" className="w-24" />
+                  <ProfileSelectCombo
+                    side={"B"}
+                    profileDefinitions={statReport.profileDefinitions}
+                  ></ProfileSelectCombo>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="flex items-center gap-1"
+                  onClick={cancelRecordInput}
+                >
+                  취소
+                </Button>
+                <Button type="submit" className="flex items-center gap-1">
+                  입력
+                </Button>
+              </div>
+            </FormProvider>
+          </form>
+        )}
       </div>
     </div>
   );

@@ -82,7 +82,7 @@ export default function Page() {
               </div>
               {isMultiSet && (
                 <div className="flex flex-col gap-2">
-                  <label className="text-lg font-bold">세트 수</label>
+                  <label className="text-lg font-bold">경기 수</label>
                   <Controller
                     name="report.bestOf"
                     control={methods.control}
@@ -92,12 +92,12 @@ export default function Page() {
                         onValueChange={(v) => field.onChange(parseInt(v, 10))}
                       >
                         <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="세트 수 선택" />
+                          <SelectValue placeholder="경기 수 선택" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="3">3세트</SelectItem>
-                          <SelectItem value="5">5세트</SelectItem>
-                          <SelectItem value="7">7세트</SelectItem>
+                          <SelectItem value="3">BO3</SelectItem>
+                          <SelectItem value="5">BO5</SelectItem>
+                          <SelectItem value="7">BO7</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
