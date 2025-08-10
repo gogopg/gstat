@@ -17,7 +17,7 @@ export default function DatePicker() {
 
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<Date | undefined>(curDate);
-  const [time, setTime] = React.useState<string>(format(curDate, "yyyy-mm-dd"));
+  const [time, setTime] = React.useState<string>(format(curDate, "hh:mm:ss"));
 
   const { control } = useFormContext<{
     matchDate: MatchRecord["matchDate"];
@@ -74,7 +74,7 @@ export default function DatePicker() {
           type="time"
           id="time-picker"
           step="1"
-          defaultValue="00:00:00"
+          defaultValue={time}
           onChange={(e) => onChangeTime(e)}
           className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />
