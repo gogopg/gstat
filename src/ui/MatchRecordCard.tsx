@@ -26,25 +26,27 @@ export default function MatchRecordCard({ matchRecords, reportName }: props) {
         return (
           <Card key={matchRecord.id}>
             <CardHeader>
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between">
                 <CardTitle>{matchRecord.name}</CardTitle>
-                <CardDescription>경기일 : {matchRecord.matchDate}</CardDescription>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" onClick={clickPopover} className="cursor-pointer">
-                      <EllipsisVerticalIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent side="bottom" align="start" className="flex w-fit items-center justify-center p-0">
-                    <DeleteConfirmDialog
-                      title={`${matchRecord.name} 기록 삭제`}
-                      description={`${matchRecord.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
-                      executeFunction={() => {
-                        useStatReportStore.getState().deleteMatchRecord(reportName, matchRecord.id);
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <div className="flex items-center">
+                  <CardDescription>경기일 : {matchRecord.matchDate}</CardDescription>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" onClick={clickPopover} className="cursor-pointer">
+                        <EllipsisVerticalIcon />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent side="bottom" align="start" className="flex w-fit items-center justify-center p-0">
+                      <DeleteConfirmDialog
+                        title={`${matchRecord.name} 기록 삭제`}
+                        description={`${matchRecord.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
+                        executeFunction={() => {
+                          useStatReportStore.getState().deleteMatchRecord(reportName, matchRecord.id);
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="text-2xl font-extrabold">
