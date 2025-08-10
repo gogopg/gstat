@@ -12,7 +12,7 @@ export default function StatDefinitionInput() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "statDefinitions",
+    name: "report.statDefinitions",
   });
 
   return (
@@ -36,12 +36,12 @@ export default function StatDefinitionInput() {
           <FormField
             key={field.id}
             control={control}
-            name={`statDefinitions.${index}.value`}
+            name={`report.statDefinitions.${index}.value`}
             render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <div className="flex items-center gap-2">
-                    <Input {...field} placeholder="지표명" />
+                    <Input {...field} placeholder="지표명" value={field.value ?? ""} />
                     <Button
                       type="button"
                       variant="ghost"

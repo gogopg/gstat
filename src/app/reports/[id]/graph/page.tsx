@@ -24,16 +24,14 @@ export default function Page() {
     state.statReports.find((r) => r.name === decodeURIComponent(id as string)),
   );
 
-  if (!statReport) {
+  if (!statReport || statReport.type !== "performance") {
     return <div>자료 오류</div>;
   }
 
-  const matchRecord = statReport.matchRecords;
-  const statDef = statReport.statDefinitions.map((stat) => stat.value);
+  const statRecord = statReport.report.performanceRecords;
+  const statDef = statReport.report.statDefinitions.map((stat) => stat.value);
 
-  const { labels, datasets } = buildRadarChartData(matchRecord, statReport.statDefinitions);
-
-  console.log("datasets", datasets);
+  const { labels, datasets } = buildRadarChartData(statRecord, statReport.report.statDefinitions);
 
   const average = datasets.find((data) => {
     return data.label === "AVERAGE";
@@ -68,24 +66,24 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-6">
-      {filterSets.map((dataSet, index) => {
-        const name = dataSet.label;
-        if (!average) {
-          return;
-        }
-        const radarData: ChartData<"radar", number[], string | string[]> = {
-          labels: labels,
-          datasets: [dataSet, average],
-        };
+      <div className="flex flex-wrap justify-center gap-6">
+        {filterSets.map((dataSet, index) => {
+          const name = dataSet.label;
+          if (!average) {
+            return;
+          }
+          const radarData: ChartData<"radar", number[], string | string[]> = {
+            labels: labels,
+            datasets: [dataSet, average],
+          };
 
-        return (
-          <div key={index} className="max-w-[340px] min-w-[280px] flex-1 basis-1/4 rounded border p-4 shadow">
-            <p>{name}</p>
-            <Radar data={radarData} options={options} />
-          </div>
-        );
-      })}
-    </div>
+          return (
+              <div key={index} className="max-w-[340px] min-w-[280px] flex-1 basis-1/4 rounded border p-4 shadow">
+                <p>{name}</p>
+                <Radar data={radarData} options={options} />
+              </div>
+          );
+        })}
+      </div>
   );
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import { MatchRecordCard } from "@/ui/MatchRecordCard";
-import { StatDefinition } from "@/types/profile";
-import { ProfileDefinition } from "@/types/statReport";
+import { StatRecordCard } from "@/ui/StatRecordCard";
+import { ProfileDefinition, StatDefinition } from "@/types/report";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from "react-hook-form";
@@ -10,19 +9,19 @@ import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-type CreateMatchRecordInputType = {
+type CreateStatRecordInputType = {
   statDefinitions: StatDefinition[];
   profileDefinitions: ProfileDefinition[];
   executeFunctionAction: () => void;
   cancelFunctionAction: () => void;
 };
 
-export default function CreateMatchRecordInput({
+export default function CreateStatRecordInput({
   statDefinitions,
   profileDefinitions,
   executeFunctionAction,
   cancelFunctionAction,
-}: CreateMatchRecordInputType) {
+}: CreateStatRecordInputType) {
   const { control } = useFormContext();
 
   const saveRecord = () => {
@@ -35,9 +34,9 @@ export default function CreateMatchRecordInput({
       <div className="flex w-full items-center gap-4">
         <Label>기록명</Label>
         <FormField
-          key={`matchRecordName`}
+          key={`statRecordName`}
           control={control}
-          name={`matchRecordName`}
+          name={`statRecordName`}
           render={({ field }) => (
             <FormItem>
               <FormControl>
@@ -52,7 +51,7 @@ export default function CreateMatchRecordInput({
         <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
           {profileDefinitions.map((profileDefinition, index) => {
             return (
-              <MatchRecordCard
+              <StatRecordCard
                 key={profileDefinition.name}
                 profileName={profileDefinition.name}
                 statDefinitions={statDefinitions}

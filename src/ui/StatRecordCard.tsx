@@ -5,19 +5,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { StatDefinition } from "@/types/profile";
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { StatDefinition } from "@/types/report";
 
-type MatchRecordCardType = {
+type StatRecordCardType = {
   profileName: string;
   statDefinitions: StatDefinition[];
   profileIndex: number;
 };
 
-export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: MatchRecordCardType) {
+export function StatRecordCard({ profileName, statDefinitions, profileIndex }: StatRecordCardType) {
   const { control } = useFormContext();
   const statLength = statDefinitions.length;
 
@@ -33,7 +33,7 @@ export function MatchRecordCard({ profileName, statDefinitions, profileIndex }: 
             <FormField
               key={`${profileName}-${statDefinition.value}`}
               control={control}
-              name={`matchRecords.${profileIndex * statLength + index}.${profileName}.${statDefinition.value}`}
+              name={`statRecords.${profileIndex * statLength + index}.${profileName}.${statDefinition.value}`}
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
