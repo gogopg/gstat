@@ -11,9 +11,9 @@ import DatePicker from "@/ui/DatePicker";
 import { useStatReportStore } from "@/store/store";
 import MatchRecordCard from "@/ui/MatchRecordCard";
 
-type PerfReport = Extract<StatReport, { type: "elo" }>;
+type props = Extract<StatReport, { type: "elo" }>;
 
-export default function EloReportUI({ statReport }: { statReport: PerfReport }) {
+export default function EloReportUI({ statReport }: { statReport: props }) {
   const methods = useForm<MatchRecord>({
     defaultValues: {
       id: "",

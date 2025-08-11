@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-type PerfReport = Extract<StatReport, { type: "performance" }>;
+type props = Extract<StatReport, { type: "performance" }>;
 
 type StatRecordInput = {
   statRecords: {
@@ -22,7 +22,7 @@ type StatRecordInput = {
   statRecordName: string;
 };
 
-export default function PerformanceReportUI({ statReport }: { statReport: PerfReport }) {
+export default function PerformanceReportUI({ statReport }: { statReport: props }) {
   const recordMethods = useForm<StatRecordInput>({
     defaultValues: {
       statRecords: {},

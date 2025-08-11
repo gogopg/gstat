@@ -1,25 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useState } from "react";
+import React from "react";
 import { StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
-import { DeleteConfirmDialog, DeleteConfirmDialogType } from "@/ui/DeleteConfirmDialog";
+import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { EllipsisVerticalIcon } from "lucide-react";
 import { useStatReportStore } from "@/store/store";
 
-type StatReportCardType = {
+type props = {
   statReport: StatReport;
 };
 
-export function StatReportCard({ statReport }: StatReportCardType) {
+export function StatReportCard({ statReport }: props) {
   const router = useRouter();
 
   const clickPopover = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
 
-  const deleteOption: DeleteConfirmDialogType = {
+  const deleteOption = {
     title: `${statReport.name} 리포트 삭제`,
     description: `${statReport.name} 리포트를 삭제합니다. 삭제하면 복구할 수 없습니다.`,
     executeFunction: () => useStatReportStore.getState().remove(statReport.name),

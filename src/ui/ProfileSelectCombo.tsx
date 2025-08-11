@@ -5,14 +5,14 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils";
 import React from "react";
 import { MatchRecord, ProfileDefinition, Side } from "@/types/report";
-import { FieldPath, useController, useFormContext } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 
-type pros = {
+type props = {
   side: Side;
   profileDefinitions: ProfileDefinition[];
 };
 
-export default function ProfileSelectCombo({ profileDefinitions, side }: pros) {
+export default function ProfileSelectCombo({ profileDefinitions, side }: props) {
   const [open, setOpen] = React.useState(false);
 
   const { control } = useFormContext<{

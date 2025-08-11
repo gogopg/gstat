@@ -10,13 +10,13 @@ import {
 import { TrashIcon } from "lucide-react";
 import React, { useState } from "react";
 
-export type DeleteConfirmDialogType = {
+export type props = {
   title: string;
   description: string;
   executeFunction: () => void
 };
 
-export function DeleteConfirmDialog({ executeFunction, title, description }: DeleteConfirmDialogType) {
+export function DeleteConfirmDialog({ executeFunction, title, description }: props) {
   const [open, setOpen] = useState(false);
 
   const deleteClick = (e: React.MouseEvent) => {

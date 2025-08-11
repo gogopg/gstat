@@ -11,13 +11,13 @@ import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { StatDefinition } from "@/types/report";
 
-type StatRecordCardType = {
+type props = {
   profileName: string;
   statDefinitions: StatDefinition[];
   profileIndex: number;
 };
 
-export function StatRecordCard({ profileName, statDefinitions, profileIndex }: StatRecordCardType) {
+export function StatRecordCard({ profileName, statDefinitions, profileIndex }: props) {
   const { control } = useFormContext();
   const statLength = statDefinitions.length;
 
