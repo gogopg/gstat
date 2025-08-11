@@ -47,8 +47,8 @@ export type EloRating = {
 
 export type StatReport =
   | ({ type: "performance" } & ReportBase & {
-        report: PerformanceReport;
+        payload: PerformanceReport;
       })
   | ({ type: "elo" } & ReportBase & {
-        report: EloReport;
+        payload: EloReport;
       });

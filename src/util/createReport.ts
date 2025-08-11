@@ -4,8 +4,8 @@ export function createDefaultReport(type: StatReport["type"], name: string, defs
   const base = { name, createdAt: new Date().toISOString(), profileDefinitions: defs };
   switch (type) {
     case "performance":
-      return { ...base, type, report: { statDefinitions: [], performanceRecords: [] } };
+      return { ...base, type, payload: { statDefinitions: [], performanceRecords: [] } };
     default:
-      return { ...base, type, report: { k: 16, matchRecords: [], eloRating: [], bestOf: 1 } };
+      return { ...base, type, payload: { k: 16, matchRecords: [], eloRating: [], bestOf: 1 } };
   }
 }

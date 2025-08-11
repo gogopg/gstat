@@ -61,12 +61,12 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
         <div className="flex items-center gap-3">
           <p className="text-lg font-bold">세트</p>
           <div className="flex gap-0.5">
-            {statReport.report.bestOf} 판 {Math.ceil(statReport.report.bestOf / 2)} 선승
+            {statReport.payload.bestOf} 판 {Math.ceil(statReport.payload.bestOf / 2)} 선승
           </div>
         </div>
         <div className="flex items-center gap-3">
           <p className="text-lg font-bold">가중치</p>
-          <div className="flex gap-0.5">{statReport.report.k}</div>
+          <div className="flex gap-0.5">{statReport.payload.k}</div>
         </div>
       </div>
 
@@ -132,7 +132,7 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
               기록 추가
             </Button>
           </div>
-          <MatchRecordCard matchRecords={statReport.report.matchRecords} reportName={statReport.name} />
+          <MatchRecordCard matchRecords={statReport.payload.matchRecords} reportName={statReport.name} />
         </div>
       )}
     </div>

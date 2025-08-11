@@ -30,13 +30,13 @@ export default function Page() {
   });
 
   const changeIsMultiSet = (checked: boolean) => {
-    methods.setValue("report.bestOf", 1, { shouldDirty: true, shouldValidate: true });
+    methods.setValue("payload.bestOf", 1, { shouldDirty: true, shouldValidate: true });
     setIsMultiSet(checked);
   };
 
   useEffect(() => {
-    if (selectedType === "performance" && !methods.getValues("report.performanceRecords")) {
-      methods.setValue("report.performanceRecords", []);
+    if (selectedType === "performance" && !methods.getValues("payload.performanceRecords")) {
+      methods.setValue("payload.performanceRecords", []);
     }
   }, [methods, selectedType]);
 
@@ -74,7 +74,7 @@ export default function Page() {
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-lg font-bold">가중치</label>
-                <Input {...methods.register("report.k")} placeholder="가중치" />
+                <Input {...methods.register("payload.k")} placeholder="가중치" />
               </div>
               <div className="tems-center flex gap-4">
                 <Checkbox id="multiSet" onCheckedChange={(checked) => changeIsMultiSet(checked === true)} />
@@ -84,7 +84,7 @@ export default function Page() {
                 <div className="flex flex-col gap-2">
                   <label className="text-lg font-bold">경기 수</label>
                   <Controller
-                    name="report.bestOf"
+                    name="payload.bestOf"
                     control={methods.control}
                     render={({ field }) => (
                       <Select
