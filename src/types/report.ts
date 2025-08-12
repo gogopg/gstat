@@ -1,5 +1,5 @@
 export type StatDefinition = { value: string };
-export type ProfileDefinition = { name: string; description?: string };
+export type ProfileDefinition = { id: string; name: string; description?: string };
 export type StatValue = Record<string, number>;
 export type ReportType = "performance" | "elo";
 export type ProfileRecord = {
@@ -17,7 +17,7 @@ export type MatchRecord = {
   id: string;
   name?: string;
   participants: { A: { profileId?: string; profileName: string }; B: { profileId?: string; profileName: string } };
-  setResult: { A: number, B: number }
+  setResult: { A: number; B: number };
   matchDate: string;
   createdAt: string;
   roster?: { A: string[]; B: string[] };
@@ -35,13 +35,12 @@ export type PerformanceReport = {
 };
 export type EloReport = {
   k: number;
-  eloRating: EloRating[];
+  eloRatings: EloRating[];
   bestOf: 1 | 3 | 5 | 7;
   matchRecords: MatchRecord[];
 };
 export type EloRating = {
-  profileId: string;
-  profileName: string;
+  profile: ProfileDefinition
   score: number;
 };
 

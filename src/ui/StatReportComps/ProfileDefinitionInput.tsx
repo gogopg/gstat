@@ -1,6 +1,6 @@
 "use client";
 import { TrashIcon, CirclePlusIcon } from "lucide-react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
@@ -22,7 +22,7 @@ export default function ProfileDefinitionInput() {
           type="button"
           variant="ghost"
           className="flex w-fit items-center gap-1 text-blue-500"
-          onClick={() => append({ name: "" })}
+          onClick={() => append({ id: crypto.randomUUID(), name: "" })}
         >
           <CirclePlusIcon className="h-4 w-4" />
           프로필 추가
@@ -35,12 +35,19 @@ export default function ProfileDefinitionInput() {
           <FormField
             key={field.id}
             control={control}
-            name={`profileDefinitions.${index}.name`}
-            render={({ field }) => (
+            name={`profileDefinitions.${index}.name`} // name 필드로 변경
+            render={({ field: nameField }) => (
               <FormItem>
                 <FormControl>
                   <div className="flex items-center gap-2">
-                    <Input {...field} placeholder="프로필 명" value={field.value ?? ""} />
+                    <Input {...nameField} placeholder="프로필 명" value={nameField.value ?? ""} />
+                    <Controller
+                      control={control}
+                      name={`profileDefinitions.${index}.id`}
+                      render={({ field: idField }) => (
+                        <input type="hidden" {...idField} value={idField.value ?? crypto.randomUUID()} />
+                      )}
+                    />
                     <Button
                       type="button"
                       variant="ghost"

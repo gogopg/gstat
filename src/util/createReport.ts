@@ -6,6 +6,6 @@ export function createDefaultReport(type: StatReport["type"], name: string, defs
     case "performance":
       return { ...base, type, payload: { statDefinitions: [], performanceRecords: [] } };
     default:
-      return { ...base, type, payload: { k: 16, matchRecords: [], eloRating: [], bestOf: 1 } };
+      return { ...base, type, payload: { k: 16, matchRecords: [], eloRatings: [], bestOf: 1 } };
   }
 }

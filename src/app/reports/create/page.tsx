@@ -3,7 +3,7 @@
 import StatDefinitionInput from "@/ui/StatReportComps/StatDefinitionInput";
 import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { ReportType, StatReport } from "@/types/report";
+import { EloRating, ReportType, StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/StatReportComps/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
@@ -25,6 +25,17 @@ export default function Page() {
   const selectedType = methods.watch("type");
 
   const onSubmit = methods.handleSubmit((data) => {
+    if (data.type === "elo") {
+      const arr: EloRating[] = [];
+      data.profileDefinitions.map((profile) => {
+        arr.push({
+          profile: profile,
+          score: 1000,
+        });
+      });
+
+      data.payload.eloRatings = arr;
+    }
     useStatReportStore.getState().add(data);
     router.push(`/reports/${data.name}`);
   });
