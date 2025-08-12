@@ -1,6 +1,6 @@
 "use client";
 
-import { StatRecordCard } from "@/ui/StatRecordCard";
+import { StatRecordCard } from "@/ui/StatReportComps/StatRecordCard";
 import { ProfileDefinition, StatDefinition } from "@/types/report";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

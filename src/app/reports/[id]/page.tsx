@@ -1,8 +1,8 @@
 "use client";
 import { useStatReportStore } from "@/store/store";
 import { useParams } from "next/navigation";
-import PerformanceReportUI from "@/ui/PerformanceReportUI";
-import EloReportUI from "@/ui/EloReportUI";
+import PerformanceReportUI from "@/ui/PerformanceReportComps/PerformanceReportUI";
+import EloReportUI from "@/ui/EloReportComps/EloReportUI";
 
 export default function Page() {
   const { id } = useParams();

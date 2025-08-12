@@ -1,11 +1,11 @@
 "use client";
 
-import StatDefinitionInput from "@/ui/StatDefinitionInput";
+import StatDefinitionInput from "@/ui/StatReportComps/StatDefinitionInput";
 import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { ReportType, StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
-import ProfileDefinitionInput from "@/ui/ProfileDefinitionInput";
+import ProfileDefinitionInput from "@/ui/StatReportComps/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

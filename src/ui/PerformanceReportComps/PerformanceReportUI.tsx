@@ -2,7 +2,7 @@ import { PerformanceRecord, ProfileRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormProvider, useForm } from "react-hook-form";
-import CreateStatRecordInput from "@/ui/CreateStatRecordInput";
+import CreateStatRecordInput from "@/ui/PerformanceReportComps/CreateStatRecordInput";
 import { CirclePlusIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";

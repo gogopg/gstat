@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { CirclePlusIcon } from "lucide-react";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import ProfileSelectCombo from "@/ui/ProfileSelectCombo";
+import ProfileSelectCombo from "@/ui/EloReportComps/ProfileSelectCombo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import DatePicker from "@/ui/DatePicker";
 import { useStatReportStore } from "@/store/store";
-import MatchRecordCard from "@/ui/MatchRecordCard";
+import MatchRecordCard from "@/ui/EloReportComps/MatchRecordCard";
 
 type props = Extract<StatReport, { type: "elo" }>;
 
