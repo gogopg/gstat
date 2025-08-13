@@ -16,7 +16,7 @@ export type Side = "A" | "B";
 export type MatchRecord = {
   id: string;
   name?: string;
-  participants: { A: { profileId?: string; profileName: string }; B: { profileId?: string; profileName: string } };
+  participants: { A: { profileId: string; profileName: string }; B: { profileId: string; profileName: string } };
   setResult: { A: number; B: number };
   matchDate: string;
   createdAt: string;
@@ -29,25 +29,26 @@ export type ReportBase = {
   type: string;
   profileDefinitions: ProfileDefinition[];
 };
-export type PerformanceReport = {
+export type PerformancePayload = {
   statDefinitions: StatDefinition[];
   performanceRecords: PerformanceRecord[];
 };
-export type EloReport = {
+export type EloPayload = {
   k: number;
   eloRatings: EloRating[];
   bestOf: 1 | 3 | 5 | 7;
+  lastUpdatedAt?: string;
   matchRecords: MatchRecord[];
 };
 export type EloRating = {
-  profile: ProfileDefinition
+  profile: ProfileDefinition;
   score: number;
 };
 
 export type StatReport =
   | ({ type: "performance" } & ReportBase & {
-        payload: PerformanceReport;
+        payload: PerformancePayload;
       })
   | ({ type: "elo" } & ReportBase & {
-        payload: EloReport;
+        payload: EloPayload;
       });

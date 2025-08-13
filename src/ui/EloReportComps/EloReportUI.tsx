@@ -1,8 +1,8 @@
-import { MatchRecord, StatReport } from "@/types/report";
+import { EloPayload, MatchRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CirclePlusIcon } from "lucide-react";
-import React, { useState } from "react";
+import { ChevronsUpDown, CirclePlusIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import ProfileSelectCombo from "@/ui/EloReportComps/ProfileSelectCombo";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import DatePicker from "@/ui/DatePicker";
 import { useStatReportStore } from "@/store/store";
 import MatchRecordCard from "@/ui/EloReportComps/MatchRecordCard";
+import EloRatingTable from "@/ui/EloReportComps/EloRatingTable";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { calcMatchRecords } from "@/util/eloRatingUtil";
 
 type props = Extract<StatReport, { type: "elo" }>;
 
@@ -21,11 +24,36 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
       name: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       winnerSide: "A",
-      participants: { A: { profileName: "" }, B: { profileName: "" } },
+      participants: { A: { profileId: "", profileName: "" }, B: { profileId: "", profileName: "" } },
     },
   });
 
+  useEffect(() => {
+    console.log('matchRecords 변경!')
+    const result = calcMatchRecords(statReport.payload);
+
+    const prev = statReport.payload.eloRatings;
+    const changed =
+      prev.length !== result.length ||
+      prev.some((r, i) => r.profile.id !== result[i]?.profile.id || r.score !== result[i]?.score);
+
+    if (changed) {
+      useStatReportStore
+        .getState()
+        .update(statReport.name, {
+          payload: {
+            ...statReport.payload,
+            eloRatings: result,
+            lastUpdatedAt: new Date().toISOString(),
+          },
+        });
+    }
+
+  }, [statReport.payload.matchRecords]);
+
+
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
+  const [openDetails, setOpneDetails] = useState(false);
 
   const cancelRecordInput = () => {
     setCreateRecordFlag(false);
@@ -35,6 +63,7 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
     data.id = crypto.randomUUID();
     data.setResult.A > data.setResult.B ? (data.winnerSide = "A") : (data.winnerSide = "B");
     useStatReportStore.getState().addMatchRecord(statReport?.name, data);
+    calcMatchRecords(statReport.payload);
     cancelRecordInput();
     methods.reset();
   });
@@ -48,26 +77,45 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
       <div className="flex w-1/2 flex-col gap-4">
         <p className="text-3xl font-bold">{statReport.name}</p>
 
-        <div className="flex flex-col gap-1">
-          <p className="text-lg font-bold">프로필</p>
-          <div className="flex gap-0.5">
-            {statReport.profileDefinitions.map((item) => (
-              <Badge className="bg-red-600" key={`profile-${item.name}`}>
-                {item.name}
-              </Badge>
-            ))}
+        <EloRatingTable ratings={statReport.payload.eloRatings} />
+
+        <Collapsible
+          open={openDetails}
+          onOpenChange={setOpneDetails}
+          className="flex w-[350] flex-col gap-2 rounded-md border p-2"
+        >
+          <div className="flex items-center justify-between gap-4 px-4">
+            <p className="text-lg font-bold">상세 정보</p>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-8">
+                <ChevronsUpDown />
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </CollapsibleTrigger>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <p className="text-lg font-bold">세트</p>
-          <div className="flex gap-0.5">
-            {statReport.payload.bestOf} 판 {Math.ceil(statReport.payload.bestOf / 2)} 선승
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <p className="text-lg font-bold">가중치</p>
-          <div className="flex gap-0.5">{statReport.payload.k}</div>
-        </div>
+          <CollapsibleContent className="flex flex-col gap-2 p-2">
+            <div className="flex flex-col gap-1">
+              <p className="font-bold">프로필 목록</p>
+              <div className="flex gap-0.5">
+                {statReport.profileDefinitions.map((item) => (
+                  <Badge className="bg-red-600" key={`profile-${item.name}`}>
+                    {item.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="font-bold">세트</p>
+              <div className="flex gap-0.5">
+                {statReport.payload.bestOf} 판 {Math.ceil(statReport.payload.bestOf / 2)} 선승
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="font-bold">가중치</p>
+              <div className="flex gap-0.5">{statReport.payload.k}</div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       {createRecordFlag ? (

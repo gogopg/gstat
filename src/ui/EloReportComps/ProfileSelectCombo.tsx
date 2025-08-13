@@ -5,7 +5,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils";
 import React from "react";
 import { MatchRecord, ProfileDefinition, Side } from "@/types/report";
-import { useController, useFormContext } from "react-hook-form";
+import { useController, useFormContext, useWatch } from "react-hook-form";
 
 type props = {
   side: Side;
@@ -15,12 +15,15 @@ type props = {
 export default function ProfileSelectCombo({ profileDefinitions, side }: props) {
   const [open, setOpen] = React.useState(false);
 
-  const { control } = useFormContext<{
+  const { control, setValue } = useFormContext<{
     participants: MatchRecord["participants"];
   }>();
 
   const fieldName = `participants.${side}.profileName` as const;
   const { field, fieldState } = useController({ control, name: fieldName });
+
+  const base = `participants.${side}` as const;
+  const selectedId = useWatch({ control, name: `${base}.profileId` }) as string | undefined;
 
   const selected = field.value as string | undefined;
 
@@ -40,14 +43,20 @@ export default function ProfileSelectCombo({ profileDefinitions, side }: props) 
             <CommandGroup>
               {profileDefinitions.map((profile) => (
                 <CommandItem
-                  key={profile.name}
+                  key={profile.id}
                   value={profile.name}
                   onSelect={(currentValue) => {
-                    field.onChange(currentValue === selected ? "" : currentValue);
+                    if (selectedId === profile.id) {
+                      setValue(`${base}.profileId`, "", { shouldDirty: true, shouldValidate: true });
+                      field.onChange(""); // profileName 초기화 (string 필드)
+                    } else {
+                      setValue(`${base}.profileId`, profile.id, { shouldDirty: true, shouldValidate: true });
+                      field.onChange(profile.name); // profileName 동시 업데이트
+                    }
                     setOpen(false);
                   }}
                 >
-                  <CheckIcon className={cn("mr-2 h-4 w-4", `participants.${side}.profileName` === profile.name ? "opacity-100" : "opacity-0")} />
+                  <CheckIcon className={cn("mr-2 h-4 w-4", selectedId === profile.id ? "opacity-100" : "opacity-0")} />
                   {profile.name}
                 </CommandItem>
               ))}
