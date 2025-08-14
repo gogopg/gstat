@@ -28,10 +28,10 @@ export default function Page() {
     return <div>자료 오류</div>;
   }
 
-  const statRecord = statReport.report.performanceRecords;
-  const statDef = statReport.report.statDefinitions.map((stat) => stat.value);
+  const statRecord = statReport.payload.performanceRecords;
+  const statDef = statReport.payload.statDefinitions.map((stat) => stat.value);
 
-  const { labels, datasets } = buildRadarChartData(statRecord, statReport.report.statDefinitions);
+  const { labels, datasets } = buildRadarChartData(statRecord, statReport.payload.statDefinitions);
 
   const average = datasets.find((data) => {
     return data.label === "AVERAGE";

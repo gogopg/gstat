@@ -12,7 +12,7 @@ export default function StatDefinitionInput() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "report.statDefinitions",
+    name: "payload.statDefinitions",
   });
 
   return (
@@ -36,7 +36,7 @@ export default function StatDefinitionInput() {
           <FormField
             key={field.id}
             control={control}
-            name={`report.statDefinitions.${index}.value`}
+            name={`payload.statDefinitions.${index}.value`}
             render={({ field }) => (
               <FormItem>
                 <FormControl>

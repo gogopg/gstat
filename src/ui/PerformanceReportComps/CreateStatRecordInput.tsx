@@ -1,6 +1,6 @@
 "use client";
 
-import { StatRecordCard } from "@/ui/StatRecordCard";
+import { StatRecordCard } from "@/ui/StatReportComps/StatRecordCard";
 import { ProfileDefinition, StatDefinition } from "@/types/report";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-type CreateStatRecordInputType = {
+type props = {
   statDefinitions: StatDefinition[];
   profileDefinitions: ProfileDefinition[];
   executeFunctionAction: () => void;
@@ -21,7 +21,7 @@ export default function CreateStatRecordInput({
   profileDefinitions,
   executeFunctionAction,
   cancelFunctionAction,
-}: CreateStatRecordInputType) {
+}: props) {
   const { control } = useFormContext();
 
   const saveRecord = () => {

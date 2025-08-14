@@ -14,7 +14,7 @@ type StatReportStoreType = {
   addPerformanceRecord: (name: string, record: PerformanceRecord) => void;
   deletePerformanceRecord: (reportName: string, recordName: string) => void;
   addMatchRecord: (name: string, record: MatchRecord) => void;
-  deleteMatchRecord: (reportName: string, matchName: string) => void;
+  deleteMatchRecord: (reportName: string, matchId: string) => void;
 };
 
 export const useStatReportStore = create<StatReportStoreType>()(
@@ -46,14 +46,14 @@ export const useStatReportStore = create<StatReportStoreType>()(
         set((state) => {
           const r = state.statReports.find((x) => x.name === name && x.type === "performance");
           if (!r || r.type !== "performance") return;
-          r.report.performanceRecords.push(record);
+          r.payload.performanceRecords.push(record);
         }),
 
       deletePerformanceRecord: (reportName, recordName) =>
         set((state) => {
           const r = state.statReports.find((x) => x.name === reportName && x.type === "performance");
           if (!r || r.type !== "performance") return;
-          r.report.performanceRecords = r.report.performanceRecords.filter((p) => p.name !== recordName);
+          r.payload.performanceRecords = r.payload.performanceRecords.filter((p) => p.name !== recordName);
         }),
 
       // ---------- Elo ----------
@@ -61,14 +61,14 @@ export const useStatReportStore = create<StatReportStoreType>()(
         set((state) => {
           const r = state.statReports.find((x) => x.name === name && x.type === "elo");
           if (!r || r.type !== "elo") return;
-          r.report.matchRecords.push(record);
+          r.payload.matchRecords.push(record);
         }),
 
-      deleteMatchRecord: (reportName, matchName) =>
+      deleteMatchRecord: (reportName, matchId) =>
         set((state) => {
           const r = state.statReports.find((x) => x.name === reportName && x.type === "elo");
           if (!r || r.type !== "elo") return;
-          r.report.matchRecords = r.report.matchRecords.filter((m) => m.name !== matchName);
+          r.payload.matchRecords = r.payload.matchRecords.filter((m) => m.id !== matchId);
         }),
     })),
     {
