@@ -1,76 +1,15 @@
-import * as schema from "./schema";
-import Database from "better-sqlite3";
-import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
-import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+// schema.ts 파일에서 PostgreSQL users 스키마(pgUsers)를 가져옵니다.
+import { pgUsers } from "@/db/schema";
 
-// 라우트에서 실제로 사용하는 최소 공통 인터페이스
-interface InsertBuilder {
-  values: (vals: Record<string, unknown>) => Promise<unknown> | unknown;
-}
-interface DrizzleDbLike {
-  insert: (table: unknown) => InsertBuilder;
-}
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-let dbInstance: DrizzleDbLike | null = null;
+// route.ts에서 직접 import할 수 있도록 pgUsers를 'users'라는 이름으로 export합니다.
+export const users = pgUsers;
 
-const useSqlite =
-  !process.env.DATABASE_URL || process.env.NODE_ENV === "development";
-
-async function initializeDb(): Promise<DrizzleDbLike> {
-  if (dbInstance) {
-    return dbInstance;
-  }
-
-  if (useSqlite) {
-    const sqlite = new Database(":memory:");
-
-    // 개발용 인메모리 테이블 준비
-    sqlite.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      );
-    `);
-
-    const sqliteDb = drizzleSqlite(sqlite, {
-      schema: {
-        users: schema.sqliteUsers,
-      },
-    });
-
-    // 최소 공통 인터페이스로 래핑
-    dbInstance = {
-      insert: (table: unknown) => sqliteDb.insert(table as never) as unknown as InsertBuilder,
-    };
-  } else {
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    });
-
-    const pgDb = drizzlePg(pool, {
-      schema: {
-        users: schema.pgUsers,
-      },
-    });
-
-    // 최소 공통 인터페이스로 래핑
-    dbInstance = {
-      insert: (table: unknown) => pgDb.insert(table as never) as unknown as InsertBuilder,
-    };
-  }
-
-  return dbInstance;
-}
-
-export async function getDb(): Promise<DrizzleDbLike> {
-  return initializeDb();
-}
-
-// 필요 시 비동기 접근 헬퍼
-export const db = {
-  get: () => initializeDb(),
-};
+export const db = drizzle(pool, {
+  schema: { users: pgUsers }, // Drizzle ORM 내부 스키마에는 pgUsers를 'users'로 연결합니다.
+});
