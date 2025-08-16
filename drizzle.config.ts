@@ -1,14 +1,14 @@
 import type { Config } from "drizzle-kit";
 import * as dotenv from "dotenv";
 
-dotenv.config({ path: ".env.local" }); // DATABASE_URL 로드
+dotenv.config({ path: ".env.local" });
 
 export default {
-  schema: "./src/db/schema.ts", // PostgreSQL 테이블 정의가 있는 파일 경로
+  schema: "./src/db/schema.ts",
   out: "./drizzle",
-  dialect: "postgresql", // <-- 필수 (기존 driver: "pg" 제거)
+  dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!, // <-- 최신 키는 url
+    url: process.env.DATABASE_URL!,
   },
   strict: true,
 } satisfies Config;
