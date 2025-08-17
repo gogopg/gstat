@@ -24,8 +24,6 @@ export default function Page() {
   });
 
   const onSubmit = form.handleSubmit(async (data: FormValues) => {
-    console.log(data);
-
     try {
       const response = await fetch("/api/user/register", {
         method: "POST",
