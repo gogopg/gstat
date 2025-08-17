@@ -14,8 +14,30 @@ type LoginUser = {
 export default function LoginUI() {
   const form = useForm({ defaultValues: { id: "", password: "" } });
   const onSubmit = form.handleSubmit(async (data: LoginUser) => {
-    console.log(data);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Registration successful:", result);
+        alert("로그인 성공");
+      } else {
+        const errorData = await response.json();
+        console.error("Registration failed:", errorData);
+        alert(`로그인 실패: ${errorData.message || "알 수 없는 오류"}`);
+      }
+    } catch (error) {
+      console.error("Network error or unexpected error:", error);
+      alert("네트워크 오류 또는 예상치 못한 오류가 발생했습니다.");
+    }
   });
+
 
   return (
     <div className="flex flex-col items-center gap-5">

@@ -36,7 +36,9 @@ export default function TopBar() {
         </NavigationMenu>
       </div>
       <div className="flex items-center gap-6">
-        <Button variant="blue">로그인 / 회원가입</Button>
+        <Button asChild variant="blue">
+          <Link href="/login">로그인 / 회원가입</Link>
+        </Button>
       </div>
     </div>
   );
