@@ -9,8 +9,27 @@ import {
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/authStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export default function TopBar() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  const router = useRouter();
+
+
+  const onLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   return (
     <div className="flex h-[64px] items-center justify-between">
       <div className="flex items-center">
@@ -36,9 +55,21 @@ export default function TopBar() {
         </NavigationMenu>
       </div>
       <div className="flex items-center gap-6">
-        <Button asChild variant="blue">
-          <Link href="/login">로그인 / 회원가입</Link>
-        </Button>
+        {isAuthenticated && (
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger>{user?.id}님</DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={onLogout}>로그아웃</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+        {!isAuthenticated && (
+          <Button asChild variant="blue">
+            <Link href="/login">로그인 / 회원가입</Link>
+          </Button>
+        )}
       </div>
     </div>
   );

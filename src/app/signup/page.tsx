@@ -25,7 +25,7 @@ export default function Page() {
 
   const onSubmit = form.handleSubmit(async (data: FormValues) => {
     try {
-      const response = await fetch("/api/user/register", {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

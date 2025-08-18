@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Link from "next/dist/client/link";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 type LoginUser = {
   id: string;
@@ -13,6 +15,9 @@ type LoginUser = {
 
 export default function LoginUI() {
   const form = useForm({ defaultValues: { id: "", password: "" } });
+  const login = useAuthStore((state) => state.login);
+  const router = useRouter();
+
   const onSubmit = form.handleSubmit(async (data: LoginUser) => {
     try {
       const response = await fetch("/api/auth/login", {
@@ -25,8 +30,10 @@ export default function LoginUI() {
 
       if (response.ok) {
         const result = await response.json();
+        login({ id: result.user.id });
         console.log("Registration successful:", result);
         alert("로그인 성공");
+        router.push("/");
       } else {
         const errorData = await response.json();
         console.error("Registration failed:", errorData);

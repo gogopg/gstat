@@ -14,13 +14,19 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
-      login: (user) => set({ user, isAuthenticated: true }),
+      login: (user) => {
+        set({ user, isAuthenticated: true });
+      },
       logout: async () => {
-        // 로그아웃 API 호출
-        await fetch("/api/auth/logout", { method: "POST" });
+        try {
+          await fetch("/api/auth/logout", { method: "POST" });
+          window.location.reload();
+        } catch (error) {
+          console.error("로그아웃 API 호출 실패:", error);
+        }
         set({ user: null, isAuthenticated: false });
       },
       checkAuth: async () => {
