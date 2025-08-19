@@ -2,10 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MatchRecord } from "@/types/report";
 import React from "react";
 import { AwardIcon, EllipsisVerticalIcon } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { DeleteConfirmDialog } from "@/ui/DeleteConfirmDialog";
 import { useStatReportStore } from "@/store/store";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useDialogStore } from "@/store/dialogStore";
 
 type props = {
   matchRecords: MatchRecord[];
@@ -16,8 +21,14 @@ export default function MatchRecordCard({ matchRecords, reportName }: props) {
   const winnerStyle = "text-blue-600";
   const loserStyle = "text-gray-400";
 
-  const clickPopover = (e: React.MouseEvent) => {
+  const onDelete = (e: React.MouseEvent, matchRecord: MatchRecord) => {
     e.stopPropagation();
+    useDialogStore.getState().openDialog({
+      title: `${matchRecord.name} 기록 삭제`,
+      description: `${matchRecord.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`,
+      showCancelButton: true,
+      onConfirm: () => useStatReportStore.getState().deleteMatchRecord(reportName, matchRecord.id),
+    });
   };
 
   return (
@@ -30,22 +41,18 @@ export default function MatchRecordCard({ matchRecords, reportName }: props) {
                 <CardTitle>{matchRecord.name}</CardTitle>
                 <div className="flex items-center">
                   <CardDescription>경기일 : {matchRecord.matchDate}</CardDescription>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" onClick={clickPopover} className="cursor-pointer">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="ml-2" variant="ghost">
                         <EllipsisVerticalIcon />
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" className="flex w-fit items-center justify-center p-0">
-                      <DeleteConfirmDialog
-                        title={`${matchRecord.name} 기록 삭제`}
-                        description={`${matchRecord.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`}
-                        executeFunction={() => {
-                          useStatReportStore.getState().deleteMatchRecord(reportName, matchRecord.id);
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center">
+                      <DropdownMenuItem onClick={(e) => onDelete(e, matchRecord)}>
+                        <p className="text-red-500">삭제</p>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </CardHeader>

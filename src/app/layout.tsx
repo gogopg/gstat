@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TopBar from "@/ui/TopBar";
+import { DialogProvider } from "@/ui/DialogProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,13 +29,14 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header className="w-full border-b">
           <link
-              rel="stylesheet"
-              href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
           />
           <div className="mx-auto w-full max-w-[1200px] px-6">
             <TopBar />
           </div>
         </header>
+        <DialogProvider />
         <main className="mx-auto w-full max-w-[1200px] px-6 py-8">{children}</main>
       </body>
     </html>
