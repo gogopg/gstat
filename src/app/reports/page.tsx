@@ -8,7 +8,7 @@ import { useStatReportStore } from "@/store/store";
 import { StatReportCard } from "@/ui/StatReportComps/StatReportCard";
 import { ExportStatReport } from "@/ui/StatReportComps/ExportStatReport";
 
-export default function page() {
+export default function Page() {
   const reports = useStatReportStore((state) => state.statReports);
 
   return (

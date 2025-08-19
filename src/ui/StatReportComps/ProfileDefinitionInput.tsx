@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import React from "react";
 
 export default function ProfileDefinitionInput() {
-  const { control, register } = useFormContext();
+  const { control } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -45,7 +45,7 @@ export default function ProfileDefinitionInput() {
                       control={control}
                       name={`profileDefinitions.${index}.id`}
                       render={({ field: idField }) => (
-                        <input type="hidden" {...idField} value={idField.value ?? crypto.randomUUID()} />
+                        <Input type="hidden" {...idField} value={idField.value ?? crypto.randomUUID()} />
                       )}
                     />
                     <Button
