@@ -47,7 +47,13 @@ export function calcMatchRecords(payload: EloPayload): EloRating[] {
     .slice()
     .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
 
-  return sortedRecords.reduce((acc, record, index) => {
+  const initializedRatings = payload.eloRatings.map(rating => ({
+    ...rating,
+    score: 1000
+  }));
+
+
+  return sortedRecords.reduce((acc, record) => {
     return calculateEloRating(record, payload.k, acc);
-  }, payload.eloRatings);
+  }, initializedRatings);
 }
