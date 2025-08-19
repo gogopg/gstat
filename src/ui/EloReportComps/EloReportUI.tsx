@@ -48,7 +48,7 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
   }, [statReport.payload.matchRecords]);
 
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
-  const [openDetails, setOpneDetails] = useState(false);
+  const [openDetails, setOpenDetails] = useState(false);
 
   const cancelRecordInput = () => {
     setCreateRecordFlag(false);
@@ -76,7 +76,7 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
 
         <Collapsible
           open={openDetails}
-          onOpenChange={setOpneDetails}
+          onOpenChange={setOpenDetails}
           className="flex w-[350] flex-col gap-2 rounded-md border p-2"
         >
           <div className="flex items-center justify-between gap-4 px-4">
