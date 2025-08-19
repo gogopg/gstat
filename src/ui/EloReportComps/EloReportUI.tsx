@@ -29,7 +29,6 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
   });
 
   useEffect(() => {
-    console.log('matchRecords 변경!')
     const result = calcMatchRecords(statReport.payload);
 
     const prev = statReport.payload.eloRatings;
@@ -38,19 +37,15 @@ export default function EloReportUI({ statReport }: { statReport: props }) {
       prev.some((r, i) => r.profile.id !== result[i]?.profile.id || r.score !== result[i]?.score);
 
     if (changed) {
-      useStatReportStore
-        .getState()
-        .update(statReport.name, {
-          payload: {
-            ...statReport.payload,
-            eloRatings: result,
-            lastUpdatedAt: new Date().toISOString(),
-          },
-        });
+      useStatReportStore.getState().update(statReport.name, {
+        payload: {
+          ...statReport.payload,
+          eloRatings: result,
+          lastUpdatedAt: new Date().toISOString(),
+        },
+      });
     }
-
   }, [statReport.payload.matchRecords]);
-
 
   const [createRecordFlag, setCreateRecordFlag] = useState(false);
   const [openDetails, setOpneDetails] = useState(false);
