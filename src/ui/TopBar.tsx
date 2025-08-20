@@ -58,7 +58,7 @@ export default function TopBar() {
         {isAuthenticated && (
           <div>
             <DropdownMenu>
-              <DropdownMenuTrigger>{user?.id}님</DropdownMenuTrigger>
+              <DropdownMenuTrigger>{user?.username}님</DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={onLogout}>로그아웃</DropdownMenuItem>
               </DropdownMenuContent>

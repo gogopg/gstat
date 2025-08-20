@@ -1,4 +1,5 @@
 import { integer, json, pgTable, serial, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const usersSchema = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -12,10 +13,11 @@ export const statReportsSchema = pgTable("stat_reports", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 200 }).notNull(),
   type: varchar("type", { length: 50 }).notNull(),
-  payloadId: uuid("payload_id").notNull(),
+  payloadId: uuid("payload_id"),
   ownerId: uuid("owner_id").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  token: varchar("share_token", { length: 12 }).unique().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at"),
 });
 
 export const profileDefinitionsSchema = pgTable("profile_definitions", {
@@ -37,7 +39,6 @@ export const eloPayloadSchema = pgTable("elo_payload", {
   id: uuid("id").primaryKey().defaultRandom(),
   k: integer("k").notNull(),
   bestOf: integer("best_of").notNull(),
-  lastUpdatedAt: varchar("last_updated_at", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -60,5 +61,5 @@ export const eloRatingsSchema = pgTable("elo_ratings", {
   score: integer("score").notNull(),
   eloPayloadId: uuid("elo_payload_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
 });
