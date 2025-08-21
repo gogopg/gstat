@@ -32,6 +32,7 @@ export default function LoginUI() {
         const result = await response.json();
         login({ id: result.user.id, username: result.user.username });
         alert("로그인 성공");
+        router.refresh();
         router.push("/");
       } else {
         const errorData = await response.json();
