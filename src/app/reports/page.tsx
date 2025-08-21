@@ -2,8 +2,6 @@ import { ImportStatReport } from "@/ui/StatReportComps/ImportStatReport";
 import { Button } from "@/components/ui/button";
 import { PlusCircleIcon } from "lucide-react";
 import Link from "next/dist/client/link";
-import { useStatReportStore } from "@/store/store";
-import { StatReportCard } from "@/ui/StatReportComps/StatReportCard";
 import { ExportStatReport } from "@/ui/StatReportComps/ExportStatReport";
 import { getReports } from "@/app/service/ReportService";
 import { cookies } from "next/headers";
@@ -13,7 +11,6 @@ import DBReportPageUI from "@/ui/StatReportComps/DBReportPageUI";
 
 export default async function Page() {
   const session = (await cookies()).get("user-session");
-  console.log("session", session)
 
   const user = session ? JSON.parse(session?.value || "") : null;
   const reports = user ? await getReports(user.id) : [];
@@ -27,11 +24,15 @@ export default async function Page() {
           </Button>
         </Link>
 
-        {/*<ImportStatReport />*/}
-        {/*<ExportStatReport />*/}
+        {!session && (
+          <div>
+            <ImportStatReport />
+            <ExportStatReport />
+          </div>
+        )}
       </div>
 
-      {session ? <DBReportPageUI reports={reports}/> : <LocalReportPageUI />}
+      {session ? <DBReportPageUI reports={reports} /> : <LocalReportPageUI />}
     </div>
   );
 }
