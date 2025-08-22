@@ -1,5 +1,5 @@
-import { integer, json, pgTable, serial, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { integer, json, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const usersSchema = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -63,3 +63,56 @@ export const eloRatingsSchema = pgTable("elo_ratings", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at"),
 });
+
+export const statReportsRelations = relations(statReportsSchema, ({ one, many }) => ({
+  owner: one(usersSchema, {
+    fields: [statReportsSchema.ownerId],
+    references: [usersSchema.id],
+  }),
+  profileDefinitions: many(profileDefinitionsSchema),
+  performancePayload: one(performancePayloadSchema, {
+    fields: [statReportsSchema.payloadId],
+    references: [performancePayloadSchema.id],
+  }),
+  eloPayload: one(eloPayloadSchema, {
+    fields: [statReportsSchema.payloadId],
+    references: [eloPayloadSchema.id],
+  }),
+}));
+
+export const profileDefinitionsRelations = relations(profileDefinitionsSchema, ({ one }) => ({
+  report: one(statReportsSchema, {
+    fields: [profileDefinitionsSchema.reportId],
+    references: [statReportsSchema.id],
+  }),
+}));
+
+export const performancePayloadRelations = relations(performancePayloadSchema, ({ one }) => ({
+  report: one(statReportsSchema, {
+    fields: [performancePayloadSchema.id],
+    references: [statReportsSchema.payloadId],
+  }),
+}));
+
+export const eloPayloadRelations = relations(eloPayloadSchema, ({ one, many }) => ({
+  report: one(statReportsSchema, {
+    fields: [eloPayloadSchema.id],
+    references: [statReportsSchema.payloadId],
+  }),
+  matchRecords: many(matchRecordsSchema),
+  eloRatings: many(eloRatingsSchema),
+}));
+
+export const matchRecordsRelations = relations(matchRecordsSchema, ({ one }) => ({
+  eloPayload: one(eloPayloadSchema, {
+    fields: [matchRecordsSchema.eloPayloadId],
+    references: [eloPayloadSchema.id],
+  }),
+}));
+
+export const eloRatingsRelations = relations(eloRatingsSchema, ({ one }) => ({
+  eloPayload: one(eloPayloadSchema, {
+    fields: [eloRatingsSchema.eloPayloadId],
+    references: [eloPayloadSchema.id],
+  }),
+}));
