@@ -23,43 +23,16 @@ export async function getReports(userId: string) {
   return reports.map(toStatReport);
 }
 
+export async function getReport(token: string, ownerId: string) {
+  console.log("adlajdlfakdaljf", token, ownerId);
+  const report = await findReportByToken(token, ownerId);
+  console.log("report", report);
+  return report;
+}
+
 export async function insertReport(report: StatReport) {
   try {
     return await db.transaction(async (tx) => {
-      let insertedPayloadId;
-
-      if (report.type === "performance") {
-        const perf = report.payload as PerformancePayload;
-
-        const [insertedPayload] = await tx
-          .insert(performancePayloadSchema)
-          .values({
-            statDefinitions: perf.statDefinitions,
-            performanceRecords: perf.performanceRecords,
-          })
-          .returning({ id: performancePayloadSchema.id });
-
-        if (!insertedPayload) throw new Error("Performance 페이로드 삽입 실패!");
-        insertedPayloadId = insertedPayload.id;
-      } else if (report.type === "elo") {
-        const elo = report.payload as EloPayload;
-        const [insertedPayload] = await tx
-          .insert(eloPayloadSchema)
-          .values({
-            k: elo.k,
-            bestOf: elo.bestOf,
-          })
-          .returning({ id: eloPayloadSchema.id });
-
-        if (!insertedPayload) throw new Error("Elo 페이로드 삽입 실패!");
-        insertedPayloadId = insertedPayload.id;
-      } else {
-        throw new Error("알 수 없는 리포트 타입입니다.");
-      }
-
-      if (!insertedPayloadId) {
-        throw new Error("알 수 없는 리포트 타입입니다.");
-      }
       let token = await generateReportToken();
       while (true) {
         const existing = await tx
@@ -77,17 +50,48 @@ export async function insertReport(report: StatReport) {
       if (!ownerId) {
         throw new Error("유저 아이디 오류");
       }
-      const result = await tx
+
+      const [result] = await tx
         .insert(statReportsSchema)
         .values({
           name: report.name,
           type: report.type,
-          payloadId: insertedPayloadId,
           token: token,
           ownerId: ownerId,
           updatedAt: new Date(),
         })
         .returning();
+
+      const reportId = result.id;
+
+      if (report.type === "performance") {
+        const perf = report.payload as PerformancePayload;
+
+        const [insertedPayload] = await tx
+          .insert(performancePayloadSchema)
+          .values({
+            reportId: reportId,
+            statDefinitions: perf.statDefinitions,
+            performanceRecords: perf.performanceRecords,
+          })
+          .returning({ id: performancePayloadSchema.id });
+
+        if (!insertedPayload) throw new Error("Performance 페이로드 삽입 실패!");
+      } else if (report.type === "elo") {
+        const elo = report.payload as EloPayload;
+        const [insertedPayload] = await tx
+          .insert(eloPayloadSchema)
+          .values({
+            reportId: reportId,
+            k: elo.k,
+            bestOf: elo.bestOf,
+          })
+          .returning({ id: eloPayloadSchema.id });
+
+        if (!insertedPayload) throw new Error("Elo 페이로드 삽입 실패!");
+      } else {
+        throw new Error("알 수 없는 리포트 타입입니다.");
+      }
 
       return result;
     });

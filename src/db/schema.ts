@@ -13,7 +13,6 @@ export const statReportsSchema = pgTable("stat_reports", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 200 }).notNull(),
   type: varchar("type", { length: 50 }).notNull(),
-  payloadId: uuid("payload_id"),
   ownerId: uuid("owner_id").notNull(),
   token: varchar("share_token", { length: 12 }).unique().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -30,6 +29,7 @@ export const profileDefinitionsSchema = pgTable("profile_definitions", {
 
 export const performancePayloadSchema = pgTable("performance_payload", {
   id: uuid("id").primaryKey().defaultRandom(),
+  reportId: uuid("report_id").notNull(),
   statDefinitions: json("stat_definitions").notNull(),
   performanceRecords: json("performance_records").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -37,6 +37,7 @@ export const performancePayloadSchema = pgTable("performance_payload", {
 
 export const eloPayloadSchema = pgTable("elo_payload", {
   id: uuid("id").primaryKey().defaultRandom(),
+  reportId: uuid("report_id").notNull(),
   k: integer("k").notNull(),
   bestOf: integer("best_of").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -65,19 +66,9 @@ export const eloRatingsSchema = pgTable("elo_ratings", {
 });
 
 export const statReportsRelations = relations(statReportsSchema, ({ one, many }) => ({
-  owner: one(usersSchema, {
-    fields: [statReportsSchema.ownerId],
-    references: [usersSchema.id],
-  }),
   profileDefinitions: many(profileDefinitionsSchema),
-  performancePayload: one(performancePayloadSchema, {
-    fields: [statReportsSchema.payloadId],
-    references: [performancePayloadSchema.id],
-  }),
-  eloPayload: one(eloPayloadSchema, {
-    fields: [statReportsSchema.payloadId],
-    references: [eloPayloadSchema.id],
-  }),
+  performancePayload: one(performancePayloadSchema),
+  eloPayload: one(eloPayloadSchema),
 }));
 
 export const profileDefinitionsRelations = relations(profileDefinitionsSchema, ({ one }) => ({
@@ -90,14 +81,14 @@ export const profileDefinitionsRelations = relations(profileDefinitionsSchema, (
 export const performancePayloadRelations = relations(performancePayloadSchema, ({ one }) => ({
   report: one(statReportsSchema, {
     fields: [performancePayloadSchema.id],
-    references: [statReportsSchema.payloadId],
+    references: [statReportsSchema.id],
   }),
 }));
 
 export const eloPayloadRelations = relations(eloPayloadSchema, ({ one, many }) => ({
   report: one(statReportsSchema, {
     fields: [eloPayloadSchema.id],
-    references: [statReportsSchema.payloadId],
+    references: [statReportsSchema.id],
   }),
   matchRecords: many(matchRecordsSchema),
   eloRatings: many(eloRatingsSchema),
