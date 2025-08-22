@@ -27,6 +27,7 @@ export type ReportBase = {
   name: string;
   createdAt: string;
   type: string;
+  token?: string;
   profileDefinitions: ProfileDefinition[];
 };
 export type PerformancePayload = {
@@ -52,3 +53,5 @@ export type StatReport =
   | ({ type: "elo" } & ReportBase & {
         payload: EloPayload;
       });
+
+export type SimpleStatReport = Pick<StatReport, "name" | "type" | "token" | "createdAt">
