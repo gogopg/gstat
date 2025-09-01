@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { usersSchema } from "@/db/schema";
+import { schema } from "@/db/schema";
 
 interface RequestBody {
   id: string;
@@ -28,23 +28,23 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-      const existingUser = await db.select({ id: usersSchema.id }).from(usersSchema).where(eq(usersSchema.username, id));
+      const existingUser = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.username, id));
       if (existingUser.length > 0) {
         return NextResponse.json({ message: "이미 사용 중인 아이디입니다." }, { status: 409 });
       }
 
       const insertedUsers = await db
-        .insert(usersSchema)
+        .insert(schema.users)
         .values({
           username: id, // 요청 본문의 id를 username 컬럼에 매핑
           email,
           passwordHash: hashedPassword,
         })
         .returning({
-          id: usersSchema.id,
-          username: usersSchema.username,
-          email: usersSchema.email,
-          createdAt: usersSchema.createdAt,
+          id: schema.users.id,
+          username: schema.users.username,
+          email: schema.users.email,
+          createdAt: schema.users.createdAt,
         });
 
       return NextResponse.json(

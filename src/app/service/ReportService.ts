@@ -1,13 +1,14 @@
 "use server";
 
 import { db } from "@/db";
-import { statReportsSchema, eloPayloadSchema, performancePayloadSchema } from "@/db/schema";
+import { schema } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
-import { PerformancePayload, StatReport, EloPayload, SimpleStatReport } from "@/types/report";
+import { StatReport, EloPayload, SimpleStatReport } from "@/types/report";
 import { generateReportToken } from "@/util/tokenUtil";
 import { getSessionUser } from "@/util/auth";
+import { findReportByToken, findReportsByOwnerId } from "@/db/repository/reportRepository";
 
-type StatReportRow = typeof statReportsSchema.$inferSelect;
+type StatReportRow = typeof schema.statReports.$inferSelect;
 
 function toStatReport(row: StatReportRow): SimpleStatReport {
   return {
@@ -18,15 +19,13 @@ function toStatReport(row: StatReportRow): SimpleStatReport {
   };
 }
 
-export async function getReports(userId: string) {
-  const reports = await db.select().from(statReportsSchema).where(eq(statReportsSchema.ownerId, userId));
-  return reports.map(toStatReport);
+export async function getReports(ownerId: string) {
+  const reports = await findReportsByOwnerId(ownerId);
+  return reports.map(toStatReport);``
 }
 
 export async function getReport(token: string, ownerId: string) {
-  console.log("adlajdlfakdaljf", token, ownerId);
   const report = await findReportByToken(token, ownerId);
-  console.log("report", report);
   return report;
 }
 
@@ -37,8 +36,8 @@ export async function insertReport(report: StatReport) {
       while (true) {
         const existing = await tx
           .select({ count: sql`count(*)` })
-          .from(statReportsSchema)
-          .where(eq(statReportsSchema.token, token))
+          .from(schema.statReports)
+          .where(eq(schema.statReports.token, token))
           .then((res) => res[0].count);
 
         if (Number(existing) === 0) {
@@ -52,7 +51,7 @@ export async function insertReport(report: StatReport) {
       }
 
       const [result] = await tx
-        .insert(statReportsSchema)
+        .insert(schema.statReports)
         .values({
           name: report.name,
           type: report.type,
@@ -64,29 +63,42 @@ export async function insertReport(report: StatReport) {
 
       const reportId = result.id;
 
+      const newProfiles: (typeof schema.profileDefinitions.$inferInsert)[] = report.profileDefinitions.map(
+        (profile) => {
+          return {
+            name: profile.name,
+            reportId: reportId,
+            description: profile.description,
+          };
+        },
+      );
+
+      const [insertedProfile] = await tx.insert(schema.profileDefinitions).values(newProfiles).returning();
+      if(!insertedProfile) throw new Error("ProfileDefinitions 페이로드 삽입 실패!");
+
       if (report.type === "performance") {
-        const perf = report.payload as PerformancePayload;
+        const perf = report.payload;
 
         const [insertedPayload] = await tx
-          .insert(performancePayloadSchema)
+          .insert(schema.performancePayload)
           .values({
             reportId: reportId,
             statDefinitions: perf.statDefinitions,
             performanceRecords: perf.performanceRecords,
           })
-          .returning({ id: performancePayloadSchema.id });
+          .returning({ id: schema.performancePayload.id });
 
         if (!insertedPayload) throw new Error("Performance 페이로드 삽입 실패!");
       } else if (report.type === "elo") {
         const elo = report.payload as EloPayload;
         const [insertedPayload] = await tx
-          .insert(eloPayloadSchema)
+          .insert(schema.eloPayload)
           .values({
             reportId: reportId,
             k: elo.k,
             bestOf: elo.bestOf,
           })
-          .returning({ id: eloPayloadSchema.id });
+          .returning({ id: schema.eloPayload.id });
 
         if (!insertedPayload) throw new Error("Elo 페이로드 삽입 실패!");
       } else {

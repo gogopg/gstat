@@ -1,7 +1,7 @@
 import { integer, json, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { PerformanceRecord, StatDefinition } from "@/types/report";
 
-export const usersSchema = pgTable("users", {
+export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   username: varchar("username", { length: 100 }).unique().notNull(),
   email: varchar("email", { length: 255 }).unique().notNull(),
@@ -9,7 +9,7 @@ export const usersSchema = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const statReportsSchema = pgTable("stat_reports", {
+export const statReports = pgTable("stat_reports", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 200 }).notNull(),
   type: varchar("type", { length: 50 }).notNull(),
@@ -19,7 +19,7 @@ export const statReportsSchema = pgTable("stat_reports", {
   updatedAt: timestamp("updated_at"),
 });
 
-export const profileDefinitionsSchema = pgTable("profile_definitions", {
+export const profileDefinitions = pgTable("profile_definitions", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 100 }).notNull(),
   description: varchar("description", { length: 500 }),
@@ -27,24 +27,24 @@ export const profileDefinitionsSchema = pgTable("profile_definitions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const performancePayloadSchema = pgTable("performance_payload", {
+export const performancePayload = pgTable("performance_payload", {
   id: uuid("id").primaryKey().defaultRandom(),
-  reportId: uuid("report_id").notNull(),
-  statDefinitions: json("stat_definitions").notNull(),
-  performanceRecords: json("performance_records").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  reportId: uuid("report_id").unique().notNull().references(() => statReports.id),
+  statDefinitions: json("stat_definitions").$type<StatDefinition[]>().notNull(),
+  performanceRecords: json("performance_records").$type<PerformanceRecord[]>().notNull(),
+  createdAt: timestamp("created_at", { mode: "string", withTimezone: true }).defaultNow().notNull(),
 });
 
-export const eloPayloadSchema = pgTable("elo_payload", {
+export const eloPayload = pgTable("elo_payload", {
   id: uuid("id").primaryKey().defaultRandom(),
-  reportId: uuid("report_id").notNull(),
+  reportId: uuid("report_id").notNull().unique(),
   k: integer("k").notNull(),
   bestOf: integer("best_of").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const matchRecordsSchema = pgTable("match_records", {
-  id: uuid("id").primaryKey(),
+export const matchRecords = pgTable("match_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 200 }),
   matchDate: timestamp("match_date").notNull(),
   winnerSide: varchar("winner_side", { length: 1 }).notNull(),
@@ -56,7 +56,7 @@ export const matchRecordsSchema = pgTable("match_records", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-export const eloRatingsSchema = pgTable("elo_ratings", {
+export const eloRatings = pgTable("elo_ratings", {
   id: uuid("id").primaryKey().defaultRandom(),
   profileId: uuid("profile_id").notNull(),
   score: integer("score").notNull(),
@@ -65,45 +65,13 @@ export const eloRatingsSchema = pgTable("elo_ratings", {
   updatedAt: timestamp("updated_at"),
 });
 
-export const statReportsRelations = relations(statReportsSchema, ({ one, many }) => ({
-  profileDefinitions: many(profileDefinitionsSchema),
-  performancePayload: one(performancePayloadSchema),
-  eloPayload: one(eloPayloadSchema),
-}));
-
-export const profileDefinitionsRelations = relations(profileDefinitionsSchema, ({ one }) => ({
-  report: one(statReportsSchema, {
-    fields: [profileDefinitionsSchema.reportId],
-    references: [statReportsSchema.id],
-  }),
-}));
-
-export const performancePayloadRelations = relations(performancePayloadSchema, ({ one }) => ({
-  report: one(statReportsSchema, {
-    fields: [performancePayloadSchema.id],
-    references: [statReportsSchema.id],
-  }),
-}));
-
-export const eloPayloadRelations = relations(eloPayloadSchema, ({ one, many }) => ({
-  report: one(statReportsSchema, {
-    fields: [eloPayloadSchema.id],
-    references: [statReportsSchema.id],
-  }),
-  matchRecords: many(matchRecordsSchema),
-  eloRatings: many(eloRatingsSchema),
-}));
-
-export const matchRecordsRelations = relations(matchRecordsSchema, ({ one }) => ({
-  eloPayload: one(eloPayloadSchema, {
-    fields: [matchRecordsSchema.eloPayloadId],
-    references: [eloPayloadSchema.id],
-  }),
-}));
-
-export const eloRatingsRelations = relations(eloRatingsSchema, ({ one }) => ({
-  eloPayload: one(eloPayloadSchema, {
-    fields: [eloRatingsSchema.eloPayloadId],
-    references: [eloPayloadSchema.id],
-  }),
-}));
+export const schema = {
+  users,
+  statReports,
+  profileDefinitions,
+  performancePayload,
+  eloPayload,
+  matchRecords,
+  eloRatings,
+} as const;
+export type DBSchema = typeof schema;
