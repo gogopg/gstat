@@ -109,9 +109,6 @@ export async function findReportByToken(
       payload,
     };
 
-
-    console.log("!!!!!!!!", result)
-
     return {
       type: "elo",
       name: report.name,

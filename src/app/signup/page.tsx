@@ -35,7 +35,6 @@ export default function Page() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log("Registration successful:", result);
         alert("회원가입이 성공적으로 완료되었습니다.");
       } else {
         const errorData = await response.json();

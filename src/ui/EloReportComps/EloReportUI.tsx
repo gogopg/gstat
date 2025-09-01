@@ -1,3 +1,4 @@
+"use client";
 import { EloPayload, MatchRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

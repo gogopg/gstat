@@ -1,5 +1,5 @@
 import { StatReportCard } from "@/ui/StatReportComps/StatReportCard";
-import { SimpleStatReport, StatReport } from "@/types/report";
+import { SimpleStatReport } from "@/types/report";
 
 type props = {
   reports: SimpleStatReport[];

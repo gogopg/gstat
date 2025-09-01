@@ -60,7 +60,9 @@ export function StatReportCard({ statReport, isSsr }: props) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <p>{statReport.type} 리포트</p>
+      </CardContent>
     </Card>
   );
 }

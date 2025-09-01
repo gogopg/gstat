@@ -1,3 +1,5 @@
+"use client"
+
 import { PerformanceRecord, ProfileRecord, StatReport } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
