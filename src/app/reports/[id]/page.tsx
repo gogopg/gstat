@@ -1,23 +1,16 @@
-"use client";
-import { useStatReportStore } from "@/store/store";
-import { useParams } from "next/navigation";
-import PerformanceReportUI from "@/ui/PerformanceReportComps/PerformanceReportUI";
-import EloReportUI from "@/ui/EloReportComps/EloReportUI";
+import CrsPage from "@/app/reports/[id]/CrsPage";
+import { getSessionUser } from "@/util/auth";
+import SsrPage from "@/app/reports/[id]/SsrPage";
 
-export default function Page() {
-  const { id } = useParams();
-  const statReport = useStatReportStore((state) =>
-    state.statReports.find((r) => r.name === decodeURIComponent(id as string)),
-  );
+type props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
-  if (!statReport) {
-    return;
-  }
+export default async function Page({ params }: props) {
+  const { id } = await params;
+  const isAuthenticated = !!(await getSessionUser());
 
-  return (
-    <>
-      {statReport.type === "performance" && <PerformanceReportUI statReport={statReport} />}
-      {statReport.type === "elo" && <EloReportUI statReport={statReport} />}
-    </>
-  );
+  return isAuthenticated ? <SsrPage token={id}  /> : <CrsPage id={id} />;
 }

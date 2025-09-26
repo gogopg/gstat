@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { db, users } from "@/db";
+import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { schema } from "@/db/schema";
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "아이디와 비밀번호를 모두 입력해주세요." }, { status: 400 });
     }
 
-    const [user] = await db.select().from(users).where(eq(users.username, id));
+    const [user] = await db.select().from(schema.users).where(eq(schema.users.username, id));
     if (!user) {
       return NextResponse.json({ message: "아이디 또는 비밀번호가 올바르지 않습니다." }, { status: 401 });
     }
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
       message: "로그인 성공",
       user: {
         id: user.id,
+        username: user.username,
       },
     });
 
@@ -32,12 +34,14 @@ export async function POST(request: Request) {
       "user-session",
       JSON.stringify({
         id: user.id,
+        username: user.username,
       }),
       {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         maxAge: 60 * 60 * 24,
+        path: "/",
       },
     );
 

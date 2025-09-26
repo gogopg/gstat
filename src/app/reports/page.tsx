@@ -1,15 +1,19 @@
-"use client";
-import React from "react";
 import { ImportStatReport } from "@/ui/StatReportComps/ImportStatReport";
 import { Button } from "@/components/ui/button";
 import { PlusCircleIcon } from "lucide-react";
 import Link from "next/dist/client/link";
-import { useStatReportStore } from "@/store/store";
-import { StatReportCard } from "@/ui/StatReportComps/StatReportCard";
 import { ExportStatReport } from "@/ui/StatReportComps/ExportStatReport";
+import { getReports } from "@/app/service/ReportService";
+import { cookies } from "next/headers";
 
-export default function Page() {
-  const reports = useStatReportStore((state) => state.statReports);
+import LocalReportPageUI from "@/ui/StatReportComps/LocalReportPageUI.dynamic";
+import DBReportPageUI from "@/ui/StatReportComps/DBReportPageUI";
+
+export default async function Page() {
+  const session = (await cookies()).get("user-session");
+
+  const user = session ? JSON.parse(session?.value || "") : null;
+  const reports = user ? await getReports(user.id) : [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -20,15 +24,15 @@ export default function Page() {
           </Button>
         </Link>
 
-        <ImportStatReport />
-        <ExportStatReport />
+        {!session && (
+          <div>
+            <ImportStatReport />
+            <ExportStatReport />
+          </div>
+        )}
       </div>
 
-      <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-        {reports.map((report) => {
-          return <StatReportCard key={report.name} statReport={report}></StatReportCard>;
-        })}
-      </div>
+      {session ? <DBReportPageUI reports={reports} /> : <LocalReportPageUI />}
     </div>
   );
 }

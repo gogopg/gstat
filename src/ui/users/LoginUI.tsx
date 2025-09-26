@@ -30,9 +30,9 @@ export default function LoginUI() {
 
       if (response.ok) {
         const result = await response.json();
-        login({ id: result.user.id });
-        console.log("Registration successful:", result);
+        login({ id: result.user.id, username: result.user.username });
         alert("로그인 성공");
+        router.refresh();
         router.push("/");
       } else {
         const errorData = await response.json();
@@ -44,7 +44,6 @@ export default function LoginUI() {
       alert("네트워크 오류 또는 예상치 못한 오류가 발생했습니다.");
     }
   });
-
 
   return (
     <div className="flex flex-col items-center gap-5">
@@ -65,7 +64,7 @@ export default function LoginUI() {
         </form>
       </Form>
 
-      <div className="flex flex-col gap-4 mt-4">
+      <div className="mt-4 flex flex-col gap-4">
         <Link href="/signup">
           <p className="font-bold text-blue-500 underline underline-offset-4">회원가입</p>
         </Link>
