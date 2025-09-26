@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-import { connectToDatabase, UserModel } from "@/db";
+import { connectToDatabase, UserDocument, UserModel } from "@/db";
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     await connectToDatabase();
-    const user = await UserModel.findOne({ username: id }).lean();
+    const user = await UserModel.findOne({ username: id }).lean<UserDocument>();
 
     if (!user) {
       return NextResponse.json({ message: "아이디 또는 비밀번호가 올바르지 않습니다." }, { status: 401 });

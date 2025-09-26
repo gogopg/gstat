@@ -66,12 +66,12 @@ function mapEloPayload(doc: StatReportDocument, profiles: ProfileDefinition[]): 
         name: record.name ?? undefined,
         participants: {
           A: {
-            profileId: record.participants.A.profileId,
-            profileName: record.participants.A.profileName,
+            profileId: record.participants?.A.profileId ?? "",
+            profileName: record.participants?.A.profileName ?? "",
           },
           B: {
-            profileId: record.participants.B.profileId,
-            profileName: record.participants.B.profileName,
+            profileId: record.participants?.B.profileId ?? "",
+            profileName: record.participants?.B.profileName ?? "",
           },
         },
         setResult: {
@@ -80,7 +80,7 @@ function mapEloPayload(doc: StatReportDocument, profiles: ProfileDefinition[]): 
         },
         matchDate: toIsoString(record.matchDate),
         createdAt: toIsoString(record.createdAt),
-        roster: record.roster
+        roster: record.roster && record.roster.A && record.roster.B
           ? {
               A: record.roster.A,
               B: record.roster.B,

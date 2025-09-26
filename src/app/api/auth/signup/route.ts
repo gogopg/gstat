@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-import { connectToDatabase, UserModel } from "@/db";
+import { connectToDatabase, UserDocument, UserModel } from "@/db";
 
 interface RequestBody {
   id: string;
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    const existing = await UserModel.findOne({ $or: [{ username: id }, { email }] }).lean();
+    const existing = await UserModel.findOne({ $or: [{ username: id }, { email }] }).lean<UserDocument>();
     if (existing) {
       if (existing.username === id) {
         return NextResponse.json({ message: "이미 사용 중인 아이디입니다." }, { status: 409 });
