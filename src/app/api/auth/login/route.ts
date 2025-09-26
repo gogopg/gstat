@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { schema } from "@/db/schema";
+
+import { connectToDatabase, UserModel } from "@/db";
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +11,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "아이디와 비밀번호를 모두 입력해주세요." }, { status: 400 });
     }
 
-    const [user] = await db.select().from(schema.users).where(eq(schema.users.username, id));
+    await connectToDatabase();
+    const user = await UserModel.findOne({ username: id }).lean();
+
     if (!user) {
       return NextResponse.json({ message: "아이디 또는 비밀번호가 올바르지 않습니다." }, { status: 401 });
     }

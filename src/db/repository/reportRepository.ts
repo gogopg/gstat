@@ -1,143 +1,128 @@
-import { db } from "@/db";
-import { and, eq } from "drizzle-orm";
-import { eloRatings, schema } from "@/db/schema";
-import { StatReport, ProfileDefinition, EloPayload, PerformancePayload } from "@/types/report";
+import { connectToDatabase, StatReportModel, type StatReportDocument } from "@/db";
+import type {
+  EloPayload,
+  PerformancePayload,
+  ProfileDefinition,
+  SimpleStatReport,
+  StatReport,
+} from "@/types/report";
 
-
-export async function findReportsByOwnerId(ownerId: string) {
-  return db.select().from(schema.statReports).where(eq(schema.statReports.ownerId, ownerId));
+function toIsoString(value: Date | string | undefined | null) {
+  if (!value) return new Date().toISOString();
+  if (value instanceof Date) return value.toISOString();
+  return new Date(value).toISOString();
 }
 
-export async function findReportByToken(
-  token: string,
-  ownerId: string
-): Promise<StatReport | null> {
-  // 1) 보고서
-  const [report] = await db
-    .select()
-    .from(schema.statReports)
-    .where(and(eq(schema.statReports.ownerId, ownerId), eq(schema.statReports.token, token)))
-    .limit(1);
-
-  if (!report) return null;
-
-  // 2) 프로필 정의
-  const profileRows = await db
-    .select()
-    .from(schema.profileDefinitions)
-    .where(eq(schema.profileDefinitions.reportId, report.id));
-
-  const profileDefinitions: ProfileDefinition[] = profileRows.map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description ?? undefined,
+function mapProfileDefinitions(doc: StatReportDocument): ProfileDefinition[] {
+  return (doc.profileDefinitions ?? []).map((profile) => ({
+    id: profile.id,
+    name: profile.name,
+    description: profile.description ?? undefined,
   }));
+}
 
-  // 3) 타입별 payload
-  if (report.type === "elo") {
-    // Elo payload 1:1
-    const [eloRow] = await db
-      .select()
-      .from(schema.eloPayload)
-      .where(eq(schema.eloPayload.reportId, report.id));
+function mapSimpleReport(doc: StatReportDocument): SimpleStatReport {
+  return {
+    name: doc.name,
+    type: doc.type as StatReport["type"],
+    token: doc.token,
+    createdAt: toIsoString(doc.createdAt),
+  };
+}
 
-    if (!eloRow) {
-      return {
-        type: "elo",
-        name: report.name,
-        createdAt: report.createdAt.toString(),
-        token: report.token,
-        profileDefinitions,
-        payload: { k: 0, bestOf: 1, eloRatings: [], matchRecords: [] },
-      };
-    }
+function mapPerformancePayload(doc: StatReportDocument): PerformancePayload {
+  if (!doc.performancePayload) {
+    return { statDefinitions: [], performanceRecords: [] };
+  }
 
-    // Elo Ratings
-    const ratingRows = await db
-      .select()
-      .from(schema.eloRatings)
-      .where(eq(schema.eloRatings.eloPayloadId, eloRow.id));
+  return {
+    statDefinitions: doc.performancePayload.statDefinitions?.map((stat) => ({ value: stat.value })) ?? [],
+    performanceRecords: doc.performancePayload.performanceRecords ?? [],
+  };
+}
 
-    const eloRatings = ratingRows.map((r) => ({
-      profile: profileDefinitions.find((p) => p.id === r.profileId) ?? {
-        id: r.profileId,
-        name: "(unknown)",
-      },
-      score: r.score,
-    }));
+function mapEloPayload(doc: StatReportDocument, profiles: ProfileDefinition[]): EloPayload {
+  if (!doc.eloPayload) {
+    return { k: 0, bestOf: 1, eloRatings: [], matchRecords: [] };
+  }
 
-    // Match Records
-    const matchRows = await db
-      .select()
-      .from(schema.matchRecords)
-      .where(eq(schema.matchRecords.eloPayloadId, eloRow.id));
+  const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
 
-    const matchRecords = matchRows.map((m) => ({
-      id: m.id,
-      name: m.name ?? undefined,
-      participants: {
-        A: {
-          profileId: m.participantAId,
-          profileName:
-            profileDefinitions.find((p) => p.id === m.participantAId)?.name ?? "(unknown)",
+  return {
+    k: doc.eloPayload.k,
+    bestOf: (doc.eloPayload.bestOf as 1 | 3 | 5 | 7) ?? 1,
+    lastUpdatedAt: doc.eloPayload.lastUpdatedAt ? toIsoString(doc.eloPayload.lastUpdatedAt) : undefined,
+    eloRatings:
+      doc.eloPayload.eloRatings?.map((rating) => ({
+        profile: profileMap.get(rating.profileId) ?? {
+          id: rating.profileId,
+          name: "(unknown)",
         },
-        B: {
-          profileId: m.participantBId,
-          profileName:
-            profileDefinitions.find((p) => p.id === m.participantBId)?.name ?? "(unknown)",
+        score: rating.score,
+      })) ?? [],
+    matchRecords:
+      doc.eloPayload.matchRecords?.map((record) => ({
+        id: record.id,
+        name: record.name ?? undefined,
+        participants: {
+          A: {
+            profileId: record.participants.A.profileId,
+            profileName: record.participants.A.profileName,
+          },
+          B: {
+            profileId: record.participants.B.profileId,
+            profileName: record.participants.B.profileName,
+          },
         },
-      },
-      setResult: { A: m.setResultA, B: m.setResultB },
-      matchDate: m.matchDate.toString(),
-      createdAt: m.createdAt.toString(),
-      winnerSide: m.winnerSide as "A" | "B",
-    }));
+        setResult: {
+          A: record.setResult.A,
+          B: record.setResult.B,
+        },
+        matchDate: toIsoString(record.matchDate),
+        createdAt: toIsoString(record.createdAt),
+        roster: record.roster
+          ? {
+              A: record.roster.A,
+              B: record.roster.B,
+            }
+          : undefined,
+        winnerSide: record.winnerSide as "A" | "B",
+      })) ?? [],
+  };
+}
 
-    const payload: EloPayload = {
-      k: eloRow.k,
-      bestOf: eloRow.bestOf as 1 | 3 | 5 | 7,
-      eloRatings,
-      matchRecords,
-    };
+export async function findReportsByOwnerId(ownerId: string): Promise<SimpleStatReport[]> {
+  await connectToDatabase();
 
-    const result = {
-      type: "elo",
-      name: report.name,
-      createdAt: report.createdAt.toString(),
-      token: report.token,
-      profileDefinitions,
-      payload,
-    };
+  const docs = await StatReportModel.find({ ownerId }).sort({ createdAt: -1 }).lean<StatReportDocument[]>();
+  return docs.map(mapSimpleReport);
+}
 
+export async function findReportByToken(token: string, ownerId: string): Promise<StatReport | null> {
+  await connectToDatabase();
+
+  const doc = await StatReportModel.findOne({ token, ownerId }).lean<StatReportDocument>();
+  if (!doc) return null;
+
+  const profiles = mapProfileDefinitions(doc);
+
+  if (doc.type === "elo") {
     return {
       type: "elo",
-      name: report.name,
-      createdAt: report.createdAt.toString(),
-      token: report.token,
-      profileDefinitions,
-      payload,
-    };
-  } else {
-    // Performance payload 1:1
-    const [perfRow] = await db
-      .select()
-      .from(schema.performancePayload)
-      .where(eq(schema.performancePayload.reportId, report.id));
-
-    const payload: PerformancePayload = perfRow
-      ? {
-        statDefinitions: perfRow.statDefinitions,
-        performanceRecords: perfRow.performanceRecords,
-      }
-      : { statDefinitions: [], performanceRecords: [] };
-
-    return {
-      type: "performance",
-      name: report.name,
-      createdAt: report.createdAt.toString(),
-      token: report.token,
-      profileDefinitions,
-      payload,
+      name: doc.name,
+      createdAt: toIsoString(doc.createdAt),
+      token: doc.token,
+      profileDefinitions: profiles,
+      payload: mapEloPayload(doc, profiles),
     };
   }
+
+  return {
+    type: "performance",
+    name: doc.name,
+    createdAt: toIsoString(doc.createdAt),
+    token: doc.token,
+    profileDefinitions: profiles,
+    payload: mapPerformancePayload(doc),
+  };
 }

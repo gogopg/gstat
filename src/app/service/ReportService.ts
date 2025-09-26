@@ -1,113 +1,97 @@
 "use server";
 
-import { db } from "@/db";
-import { schema } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
-import { StatReport, EloPayload, SimpleStatReport } from "@/types/report";
-import { generateReportToken } from "@/util/tokenUtil";
-import { getSessionUser } from "@/util/auth";
+import { randomUUID } from "crypto";
+
+import { connectToDatabase, StatReportModel } from "@/db";
 import { findReportByToken, findReportsByOwnerId } from "@/db/repository/reportRepository";
+import type { EloPayload, SimpleStatReport, StatReport } from "@/types/report";
+import { getSessionUser } from "@/util/auth";
+import { generateReportToken } from "@/util/tokenUtil";
 
-type StatReportRow = typeof schema.statReports.$inferSelect;
-
-function toStatReport(row: StatReportRow): SimpleStatReport {
-  return {
-    name: row.name,
-    type: row.type as StatReport["type"],
-    token: row.token,
-    createdAt: row.createdAt.toString(),
-  };
+function normalizeNumber(value: unknown, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-export async function getReports(ownerId: string) {
-  const reports = await findReportsByOwnerId(ownerId);
-  return reports.map(toStatReport);``
+export async function getReports(ownerId: string): Promise<SimpleStatReport[]> {
+  return findReportsByOwnerId(ownerId);
 }
 
-export async function getReport(token: string, ownerId: string) {
-  const report = await findReportByToken(token, ownerId);
-  return report;
+export async function getReport(token: string, ownerId: string): Promise<StatReport | null> {
+  return findReportByToken(token, ownerId);
 }
 
-export async function insertReport(report: StatReport) {
-  try {
-    return await db.transaction(async (tx) => {
-      let token = await generateReportToken();
-      while (true) {
-        const existing = await tx
-          .select({ count: sql`count(*)` })
-          .from(schema.statReports)
-          .where(eq(schema.statReports.token, token))
-          .then((res) => res[0].count);
+export async function insertReport(report: StatReport): Promise<void> {
+  await connectToDatabase();
 
-        if (Number(existing) === 0) {
-          break;
-        }
-        token = await generateReportToken();
-      }
-      const ownerId = (await getSessionUser())?.id;
-      if (!ownerId) {
-        throw new Error("유저 아이디 오류");
-      }
-
-      const [result] = await tx
-        .insert(schema.statReports)
-        .values({
-          name: report.name,
-          type: report.type,
-          token: token,
-          ownerId: ownerId,
-          updatedAt: new Date(),
-        })
-        .returning();
-
-      const reportId = result.id;
-
-      const newProfiles: (typeof schema.profileDefinitions.$inferInsert)[] = report.profileDefinitions.map(
-        (profile) => {
-          return {
-            name: profile.name,
-            reportId: reportId,
-            description: profile.description,
-          };
-        },
-      );
-
-      const [insertedProfile] = await tx.insert(schema.profileDefinitions).values(newProfiles).returning();
-      if(!insertedProfile) throw new Error("ProfileDefinitions 페이로드 삽입 실패!");
-
-      if (report.type === "performance") {
-        const perf = report.payload;
-
-        const [insertedPayload] = await tx
-          .insert(schema.performancePayload)
-          .values({
-            reportId: reportId,
-            statDefinitions: perf.statDefinitions,
-            performanceRecords: perf.performanceRecords,
-          })
-          .returning({ id: schema.performancePayload.id });
-
-        if (!insertedPayload) throw new Error("Performance 페이로드 삽입 실패!");
-      } else if (report.type === "elo") {
-        const elo = report.payload as EloPayload;
-        const [insertedPayload] = await tx
-          .insert(schema.eloPayload)
-          .values({
-            reportId: reportId,
-            k: elo.k,
-            bestOf: elo.bestOf,
-          })
-          .returning({ id: schema.eloPayload.id });
-
-        if (!insertedPayload) throw new Error("Elo 페이로드 삽입 실패!");
-      } else {
-        throw new Error("알 수 없는 리포트 타입입니다.");
-      }
-
-      return result;
-    });
-  } catch (e) {
-    console.error(e);
+  let token = await generateReportToken();
+  while (await StatReportModel.exists({ token })) {
+    token = await generateReportToken();
   }
+
+  const owner = await getSessionUser();
+  if (!owner) {
+    throw new Error("유저 아이디 오류");
+  }
+
+  const profileDefinitions = report.profileDefinitions.map((profile) => ({
+    id: profile.id ?? randomUUID(),
+    name: profile.name,
+    description: profile.description ?? undefined,
+  }));
+
+  const base = {
+    name: report.name,
+    type: report.type,
+    token,
+    ownerId: owner.id,
+    profileDefinitions,
+  } as const;
+
+  if (report.type === "performance") {
+    const payload = report.payload;
+
+    await StatReportModel.create({
+      ...base,
+      performancePayload: {
+        statDefinitions: payload.statDefinitions ?? [],
+        performanceRecords: payload.performanceRecords ?? [],
+      },
+    });
+    return;
+  }
+
+  const payload = report.payload as EloPayload;
+
+  await StatReportModel.create({
+    ...base,
+    eloPayload: {
+      k: normalizeNumber(payload.k, 0),
+      bestOf: normalizeNumber(payload.bestOf, 1),
+      lastUpdatedAt: payload.lastUpdatedAt ? new Date(payload.lastUpdatedAt) : undefined,
+      eloRatings: (payload.eloRatings ?? []).map((rating) => ({
+        profileId: rating.profile.id,
+        score: rating.score,
+      })),
+      matchRecords: (payload.matchRecords ?? []).map((match) => ({
+        id: match.id ?? randomUUID(),
+        name: match.name,
+        participants: {
+          A: {
+            profileId: match.participants.A.profileId,
+            profileName: match.participants.A.profileName,
+          },
+          B: {
+            profileId: match.participants.B.profileId,
+            profileName: match.participants.B.profileName,
+          },
+        },
+        setResult: match.setResult,
+        matchDate: new Date(match.matchDate),
+        createdAt: new Date(match.createdAt),
+        roster: match.roster,
+        winnerSide: match.winnerSide,
+      })),
+    },
+  });
 }
