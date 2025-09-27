@@ -1,4 +1,10 @@
-import { connectToDatabase, StatReportModel, type StatReportDocument } from "@/db";
+import {
+  MatchRecordModel,
+  StatReportModel,
+  connectToDatabase,
+  type MatchRecordDocument,
+  type StatReportDocument,
+} from "@/db";
 import type {
   EloPayload,
   PerformancePayload,
@@ -41,9 +47,95 @@ function mapPerformancePayload(doc: StatReportDocument): PerformancePayload {
   };
 }
 
-function mapEloPayload(doc: StatReportDocument, profiles: ProfileDefinition[]): EloPayload {
+function mapMatchRecords(matchDocs: MatchRecordDocument[]): EloPayload["matchRecords"] {
+  return matchDocs.map((record) => ({
+    id: record.matchId,
+    name: record.name ?? undefined,
+    participants: {
+      A: {
+        profileId: record.participants?.A.profileId ?? "",
+        profileName: record.participants?.A.profileName ?? "",
+      },
+      B: {
+        profileId: record.participants?.B.profileId ?? "",
+        profileName: record.participants?.B.profileName ?? "",
+      },
+    },
+    setResult: {
+      A: record.setResult.A,
+      B: record.setResult.B,
+    },
+    matchDate: toIsoString(record.matchDate),
+    createdAt: toIsoString(record.createdAt),
+    roster:
+      record.roster && record.roster.A && record.roster.B
+        ? {
+            A: record.roster.A,
+            B: record.roster.B,
+          }
+        : undefined,
+    winnerSide: record.winnerSide as "A" | "B",
+  }));
+}
+
+function mapLegacyMatchRecords(records: unknown[]): EloPayload["matchRecords"] {
+  if (!Array.isArray(records)) {
+    return [];
+  }
+
+  return records.map((record) => {
+    const legacy = record as {
+      id?: string;
+      name?: string;
+      participants?: {
+        A?: { profileId?: string; profileName?: string };
+        B?: { profileId?: string; profileName?: string };
+      };
+      setResult?: { A?: number; B?: number };
+      matchDate?: Date | string;
+      createdAt?: Date | string;
+      roster?: { A?: string[]; B?: string[] };
+      winnerSide?: string;
+    };
+
+    return {
+      id: legacy.id ?? "",
+      name: legacy.name ?? undefined,
+      participants: {
+        A: {
+          profileId: legacy.participants?.A?.profileId ?? "",
+          profileName: legacy.participants?.A?.profileName ?? "",
+        },
+        B: {
+          profileId: legacy.participants?.B?.profileId ?? "",
+          profileName: legacy.participants?.B?.profileName ?? "",
+        },
+      },
+      setResult: {
+        A: Number(legacy.setResult?.A ?? 0),
+        B: Number(legacy.setResult?.B ?? 0),
+      },
+      matchDate: toIsoString(legacy.matchDate),
+      createdAt: toIsoString(legacy.createdAt),
+      roster:
+        legacy.roster && legacy.roster.A && legacy.roster.B
+          ? { A: legacy.roster.A, B: legacy.roster.B }
+          : undefined,
+      winnerSide: legacy.winnerSide === "B" ? "B" : "A",
+    };
+  });
+}
+
+function mapEloPayload(
+  doc: StatReportDocument,
+  profiles: ProfileDefinition[],
+  matchDocs: MatchRecordDocument[],
+  legacyMatches: unknown[] = [],
+): EloPayload {
+  const resolvedMatchRecords = matchDocs.length > 0 ? mapMatchRecords(matchDocs) : mapLegacyMatchRecords(legacyMatches);
+
   if (!doc.eloPayload) {
-    return { k: 0, bestOf: 1, eloRatings: [], matchRecords: [] };
+    return { k: 0, bestOf: 1, eloRatings: [], matchRecords: resolvedMatchRecords };
   }
 
   const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
@@ -60,34 +152,7 @@ function mapEloPayload(doc: StatReportDocument, profiles: ProfileDefinition[]): 
         },
         score: rating.score,
       })) ?? [],
-    matchRecords:
-      doc.eloPayload.matchRecords?.map((record) => ({
-        id: record.id,
-        name: record.name ?? undefined,
-        participants: {
-          A: {
-            profileId: record.participants?.A.profileId ?? "",
-            profileName: record.participants?.A.profileName ?? "",
-          },
-          B: {
-            profileId: record.participants?.B.profileId ?? "",
-            profileName: record.participants?.B.profileName ?? "",
-          },
-        },
-        setResult: {
-          A: record.setResult.A,
-          B: record.setResult.B,
-        },
-        matchDate: toIsoString(record.matchDate),
-        createdAt: toIsoString(record.createdAt),
-        roster: record.roster && record.roster.A && record.roster.B
-          ? {
-              A: record.roster.A,
-              B: record.roster.B,
-            }
-          : undefined,
-        winnerSide: record.winnerSide as "A" | "B",
-      })) ?? [],
+    matchRecords: resolvedMatchRecords,
   };
 }
 
@@ -107,13 +172,19 @@ export async function findReportByToken(token: string, ownerId: string): Promise
   const profiles = mapProfileDefinitions(doc);
 
   if (doc.type === "elo") {
+    const matchDocs = await MatchRecordModel.find({ reportToken: doc.token })
+      .sort({ matchDate: 1, createdAt: 1 })
+      .lean<MatchRecordDocument[]>();
+
+    const legacyMatchRecords = (doc.eloPayload as unknown as { matchRecords?: unknown[] })?.matchRecords ?? [];
+
     return {
       type: "elo",
       name: doc.name,
       createdAt: toIsoString(doc.createdAt),
       token: doc.token,
       profileDefinitions: profiles,
-      payload: mapEloPayload(doc, profiles),
+      payload: mapEloPayload(doc, profiles, matchDocs, legacyMatchRecords),
     };
   }
 

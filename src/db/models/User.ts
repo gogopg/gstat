@@ -16,4 +16,4 @@ const UserSchema = new Schema(
 
 export type UserDocument = InferSchemaType<typeof UserSchema>;
 
-export const UserModel = models.User ?? model<UserDocument>("User", UserSchema);
+export const UserModel = models.User ?? model<UserDocument>("User", UserSchema, "user");

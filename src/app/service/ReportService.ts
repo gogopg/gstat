@@ -2,7 +2,7 @@
 
 import { randomUUID } from "crypto";
 
-import { connectToDatabase, StatReportModel } from "@/db";
+import { connectToDatabase, MatchRecordModel, StatReportModel } from "@/db";
 import { findReportByToken, findReportsByOwnerId } from "@/db/repository/reportRepository";
 import type { EloPayload, SimpleStatReport, StatReport } from "@/types/report";
 import { getSessionUser } from "@/util/auth";
@@ -62,6 +62,7 @@ export async function insertReport(report: StatReport): Promise<void> {
   }
 
   const payload = report.payload as EloPayload;
+  const matchRecords = payload.matchRecords ?? [];
 
   await StatReportModel.create({
     ...base,
@@ -73,25 +74,34 @@ export async function insertReport(report: StatReport): Promise<void> {
         profileId: rating.profile.id,
         score: rating.score,
       })),
-      matchRecords: (payload.matchRecords ?? []).map((match) => ({
-        id: match.id ?? randomUUID(),
-        name: match.name,
-        participants: {
-          A: {
-            profileId: match.participants.A.profileId,
-            profileName: match.participants.A.profileName,
-          },
-          B: {
-            profileId: match.participants.B.profileId,
-            profileName: match.participants.B.profileName,
-          },
-        },
-        setResult: match.setResult,
-        matchDate: new Date(match.matchDate),
-        createdAt: new Date(match.createdAt),
-        roster: match.roster,
-        winnerSide: match.winnerSide,
-      })),
     },
   });
+
+  if (matchRecords.length === 0) {
+    return;
+  }
+
+  await MatchRecordModel.insertMany(
+    matchRecords.map((match) => ({
+      reportToken: token,
+      matchId: match.id ?? randomUUID(),
+      name: match.name,
+      participants: {
+        A: {
+          profileId: match.participants.A.profileId,
+          profileName: match.participants.A.profileName,
+        },
+        B: {
+          profileId: match.participants.B.profileId,
+          profileName: match.participants.B.profileName,
+        },
+      },
+      setResult: match.setResult,
+      matchDate: new Date(match.matchDate),
+      createdAt: new Date(match.createdAt),
+      roster: match.roster,
+      winnerSide: match.winnerSide,
+    })),
+    { ordered: true },
+  );
 }
