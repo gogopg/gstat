@@ -21,34 +21,47 @@ export default function MatchRecordCard({ matchRecords, reportName }: props) {
   const winnerStyle = "text-blue-600";
   const loserStyle = "text-gray-400";
 
-  const onDelete = (e: React.MouseEvent, matchRecord: MatchRecord) => {
-    e.stopPropagation();
+  const onDelete = (event: React.MouseEvent, matchRecord: MatchRecord) => {
+    event.stopPropagation();
     useDialogStore.getState().openDialog({
-      title: `${matchRecord.name} 기록 삭제`,
-      description: `${matchRecord.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`,
+      title: `${matchRecord.name ?? "기록"} 기록 삭제`,
+      description: `${matchRecord.name ?? "기록"} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`,
       showCancelButton: true,
-      onConfirm: () => useStatReportStore.getState().deleteMatchRecord(reportName, matchRecord.id),
+      onConfirm: () => {
+        useStatReportStore.getState().deleteMatchRecord(reportName, matchRecord.id);
+      },
     });
   };
 
   return (
     <div className="flex flex-col gap-2">
       {matchRecords.map((matchRecord) => {
+        const recordName = matchRecord.name ?? "경기";
         return (
           <Card key={matchRecord.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>{matchRecord.name}</CardTitle>
+                <CardTitle>{recordName}</CardTitle>
                 <div className="flex items-center">
                   <CardDescription>경기일 : {matchRecord.matchDate}</CardDescription>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="ml-2" variant="ghost">
+                      <Button
+                        className="ml-2"
+                        variant="ghost"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                        }}
+                      >
                         <EllipsisVerticalIcon />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="center">
-                      <DropdownMenuItem onClick={(e) => onDelete(e, matchRecord)}>
+                      <DropdownMenuItem
+                        onClick={(event) => {
+                          onDelete(event, matchRecord);
+                        }}
+                      >
                         <p className="text-red-500">삭제</p>
                       </DropdownMenuItem>
                     </DropdownMenuContent>

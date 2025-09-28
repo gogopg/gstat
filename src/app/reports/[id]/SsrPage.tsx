@@ -17,7 +17,7 @@ export default async function SsrPage({ token }: props) {
   const report = await getReport(token, user.id);
 
   if (!report) {
-    return;
+    return null;
   }
 
   return (

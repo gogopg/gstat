@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Form} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import TextFormField from "@/ui/users/FormTextField";
 
@@ -23,7 +23,18 @@ export default function Page() {
     },
   });
 
-  const onSubmit = form.handleSubmit(async (data: FormValues) => {
+  const handleSubmit = form.handleSubmit(async (data: FormValues) => {
+    type ApiMessage = { message?: string };
+
+    const isApiMessage = (value: unknown): value is ApiMessage => {
+      if (!value || typeof value !== "object") {
+        return false;
+      }
+
+      const candidate = value as Partial<ApiMessage>;
+      return candidate.message === undefined || typeof candidate.message === "string";
+    };
+
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -34,12 +45,12 @@ export default function Page() {
       });
 
       if (response.ok) {
-        const result = await response.json();
         alert("회원가입이 성공적으로 완료되었습니다.");
       } else {
-        const errorData = await response.json();
+        const errorData: unknown = await response.json().catch(() => null);
+        const message = isApiMessage(errorData) && errorData.message ? errorData.message : "알 수 없는 오류";
         console.error("Registration failed:", errorData);
-        alert(`회원가입 실패: ${errorData.message || "알 수 없는 오류"}`);
+        alert(`회원가입 실패: ${message}`);
       }
     } catch (error) {
       console.error("Network error or unexpected error:", error);
@@ -50,7 +61,12 @@ export default function Page() {
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={onSubmit} className="space-y-8">
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(event);
+          }}
+          className="space-y-8"
+        >
           <TextFormField control={form.control} name="id" label="아이디" placeholder="아이디" />
           <TextFormField control={form.control} name="email" label="이메일" placeholder="이메일" type="email" />
           <TextFormField

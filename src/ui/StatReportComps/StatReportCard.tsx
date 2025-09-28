@@ -22,24 +22,26 @@ type props = {
 
 export function StatReportCard({ statReport, isSsr }: props) {
   const router = useRouter();
-  let reportKey = statReport.name;
+  const reportKey = isSsr ? statReport.token ?? "" : statReport.name;
 
-  if (isSsr) reportKey = statReport.token || "";
-
-  const onDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const onDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
     useDialogStore.getState().openDialog({
       title: `${reportKey} 리포트 삭제`,
       description: `${reportKey} 리포트를 삭제합니다. 삭제하면 복구할 수 없습니다.`,
       showCancelButton: true,
-      onConfirm: () => useStatReportStore.getState().remove(reportKey),
+      onConfirm: () => {
+        useStatReportStore.getState().remove(reportKey);
+      },
     });
   };
 
   return (
     <Card
       className="max-w-[360px] min-w-[240px] grow basis-[240px] cursor-pointer rounded border shadow transition-shadow hover:shadow-lg"
-      onClick={() => router.push(`/reports/${reportKey}`)}
+      onClick={() => {
+        router.push(`/reports/${reportKey}`);
+      }}
     >
       <CardHeader>
         <CardTitle>
@@ -47,12 +49,21 @@ export function StatReportCard({ statReport, isSsr }: props) {
             {statReport.name}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost">
+                <Button
+                  variant="ghost"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
+                >
                   <EllipsisVerticalIcon />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
-                <DropdownMenuItem onClick={onDelete}>
+                <DropdownMenuItem
+                  onClick={(event) => {
+                    onDelete(event);
+                  }}
+                >
                   <p className="text-red-500">삭제</p>
                 </DropdownMenuItem>
               </DropdownMenuContent>

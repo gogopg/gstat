@@ -3,7 +3,7 @@
 import StatDefinitionInput from "@/ui/StatReportComps/StatDefinitionInput";
 import React, { useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { EloRating, ReportType, StatReport } from "@/types/report";
+import { ReportType, StatReport } from "@/types/report";
 import { useRouter } from "next/navigation";
 import ProfileDefinitionInput from "@/ui/StatReportComps/ProfileDefinitionInput";
 import { useStatReportStore } from "@/store/store";
@@ -14,12 +14,12 @@ import { createDefaultReport } from "@/util/createReport";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-type props = {
+type CreateReportFormProps = {
   isAuthenticated: boolean;
-  insertReport: (report: StatReport) => void;
+  insertReport: (report: StatReport) => Promise<void>;
 };
 
-export default function CreateReportForm({ isAuthenticated, insertReport }: props) {
+export default function CreateReportForm({ isAuthenticated, insertReport }: CreateReportFormProps) {
   const router = useRouter();
   const [isMultiSet, setIsMultiSet] = useState(false);
   const methods = useForm<StatReport>({
@@ -29,24 +29,26 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
 
   const selectedType = methods.watch("type");
 
-  const onSubmit = methods.handleSubmit((data) => {
-    if (data.type === "elo") {
-      const arr: EloRating[] = [];
-      data.profileDefinitions.map((profile) => {
-        arr.push({
-          profile: profile,
-          score: 1000,
-        });
-      });
+  const handleSubmit = methods.handleSubmit(async (data) => {
+    const report: StatReport =
+      data.type === "elo"
+        ? {
+            ...data,
+            payload: {
+              ...data.payload,
+              eloRatings: data.profileDefinitions.map((profile) => ({
+                profile,
+                score: 1000,
+              })),
+            },
+          }
+        : data;
 
-      data.payload.eloRatings = arr;
-    }
-    if(isAuthenticated) {
-      insertReport(data);
+    if (isAuthenticated) {
+      await insertReport(report);
     } else {
-      useStatReportStore.getState().add(data);
+      useStatReportStore.getState().add(report);
     }
-    // router.push(`/reports/${data.name}`);
   });
 
   const changeIsMultiSet = (checked: boolean) => {
@@ -55,8 +57,11 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
   };
 
   useEffect(() => {
-    if (selectedType === "performance" && !methods.getValues("payload.performanceRecords")) {
-      methods.setValue("payload.performanceRecords", []);
+    if (selectedType === "performance") {
+      const performanceRecords = methods.getValues("payload.performanceRecords");
+      if (!Array.isArray(performanceRecords)) {
+        methods.setValue("payload.performanceRecords", []);
+      }
     }
   }, [methods, selectedType]);
 
@@ -64,7 +69,12 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
     <div className="flex w-1/3 flex-col gap-8">
       <label className="text-3xl font-bold">새 리포트 추가</label>
       <FormProvider {...methods}>
-        <form onSubmit={onSubmit} className="flex flex-col gap-8">
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(event);
+          }}
+          className="flex flex-col gap-8"
+        >
           <div className="flex flex-col gap-2">
             <label className="text-lg font-bold">리포트 이름</label>
             <Input {...methods.register("name")} placeholder="리포트 이름" />
@@ -75,7 +85,12 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
               name="type"
               control={methods.control}
               render={({ field }) => (
-                <Select value={selectedType} onValueChange={(v: string) => field.onChange(v as ReportType)}>
+                <Select
+                  value={selectedType}
+                  onValueChange={(value) => {
+                    field.onChange(value as ReportType);
+                  }}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="리포트 타입 선택" />
                   </SelectTrigger>
@@ -97,7 +112,12 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
                 <Input {...methods.register("payload.k")} placeholder="가중치" />
               </div>
               <div className="tems-center flex gap-4">
-                <Checkbox id="multiSet" onCheckedChange={(checked) => changeIsMultiSet(checked === true)} />
+                <Checkbox
+                  id="multiSet"
+                  onCheckedChange={(checked) => {
+                    changeIsMultiSet(checked === true);
+                  }}
+                />
                 <Label htmlFor="multiSet">세트 적용</Label>
               </div>
               {isMultiSet && (
@@ -108,8 +128,13 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
                     control={methods.control}
                     render={({ field }) => (
                       <Select
-                        value={field.value != null ? String(field.value) : undefined}
-                        onValueChange={(v) => field.onChange(parseInt(v, 10))}
+                        value={String(field.value)}
+                        onValueChange={(value) => {
+                          const parsed = Number.parseInt(value, 10);
+                          if (parsed === 3 || parsed === 5 || parsed === 7) {
+                            field.onChange(parsed);
+                          }
+                        }}
                       >
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="경기 수 선택" />
@@ -128,7 +153,14 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: prop
           ) : null}
 
           <div className="flex gap-2">
-            <Button variant="secondary" type="button" className="flex w-1/3" onClick={router.back}>
+            <Button
+              variant="secondary"
+              type="button"
+              className="flex w-1/3"
+              onClick={() => {
+                router.back();
+              }}
+            >
               취소
             </Button>
             <Button className="flex w-1/3" type="submit">

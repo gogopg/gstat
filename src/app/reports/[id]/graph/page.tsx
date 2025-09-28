@@ -29,7 +29,6 @@ export default function Page() {
   }
 
   const statRecord = statReport.payload.performanceRecords;
-  const statDef = statReport.payload.statDefinitions.map((stat) => stat.value);
 
   const { labels, datasets } = buildRadarChartData(statRecord, statReport.payload.statDefinitions);
 
@@ -70,7 +69,7 @@ export default function Page() {
         {filterSets.map((dataSet, index) => {
           const name = dataSet.label;
           if (!average) {
-            return;
+            return null;
           }
           const radarData: ChartData<"radar", number[], string | string[]> = {
             labels: labels,

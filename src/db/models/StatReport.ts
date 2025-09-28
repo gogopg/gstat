@@ -1,4 +1,4 @@
-import { Schema, model, models, type InferSchemaType, Types } from "mongoose";
+import { Schema, model, models, type InferSchemaType, Types, type Model } from "mongoose";
 
 const StatDefinitionSchema = new Schema(
   {
@@ -60,5 +60,7 @@ const StatReportSchema = new Schema(
 
 export type StatReportDocument = InferSchemaType<typeof StatReportSchema>;
 
+const existingStatReportModel = models.StatReport as Model<StatReportDocument> | undefined;
+
 export const StatReportModel =
-  models.StatReport ?? model<StatReportDocument>("StatReport", StatReportSchema, "statReport");
+  existingStatReportModel ?? model<StatReportDocument>("StatReport", StatReportSchema, "statReport");

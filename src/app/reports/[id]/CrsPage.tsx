@@ -9,11 +9,11 @@ type props = {
 
 export default function CrsPage({ id }: props) {
   const statReport = useStatReportStore((state) =>
-    state.statReports.find((r) => r.name === decodeURIComponent(id as string)),
+    state.statReports.find((r) => r.name === decodeURIComponent(id)),
   );
 
   if (!statReport) {
-    return;
+    return null;
   }
 
   return (

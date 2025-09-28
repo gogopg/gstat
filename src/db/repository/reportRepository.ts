@@ -8,7 +8,9 @@ import {
 import type {
   EloPayload,
   PerformancePayload,
+  PerformanceRecord,
   ProfileDefinition,
+  ProfileRecord,
   SimpleStatReport,
   StatReport,
 } from "@/types/report";
@@ -20,20 +22,89 @@ function toIsoString(value: Date | string | undefined | null) {
 }
 
 function mapProfileDefinitions(doc: StatReportDocument): ProfileDefinition[] {
-  return (doc.profileDefinitions ?? []).map((profile) => ({
-    id: profile.id,
-    name: profile.name,
-    description: profile.description ?? undefined,
+  const definitions = Array.isArray(doc.profileDefinitions) ? doc.profileDefinitions : [];
+  return definitions.map((profile) => ({
+    id: typeof profile.id === "string" ? profile.id : "",
+    name: typeof profile.name === "string" ? profile.name : "",
+    description: typeof profile.description === "string" ? profile.description : undefined,
   }));
 }
 
 function mapSimpleReport(doc: StatReportDocument): SimpleStatReport {
+  const type: StatReport["type"] = doc.type === "elo" ? "elo" : "performance";
   return {
     name: doc.name,
-    type: doc.type as StatReport["type"],
+    type,
     token: doc.token,
     createdAt: toIsoString(doc.createdAt),
   };
+}
+
+function normalizeProfileRecord(record: unknown): ProfileRecord | null {
+  if (!record || typeof record !== "object") {
+    return null;
+  }
+
+  const candidate = record as {
+    name?: unknown;
+    stats?: unknown;
+    count?: unknown;
+  };
+
+  if (typeof candidate.name !== "string") {
+    return null;
+  }
+
+  const statsSource = candidate.stats && typeof candidate.stats === "object" ? candidate.stats : {};
+  const stats = Object.entries(statsSource as Record<string, unknown>).reduce<Record<string, number>>((acc, [key, value]) => {
+    if (typeof value === "number") {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+  const count = typeof candidate.count === "number" && Number.isFinite(candidate.count) ? candidate.count : 0;
+
+  return {
+    name: candidate.name,
+    stats,
+    count,
+  };
+}
+
+function mapPerformanceRecords(records: unknown[]): PerformanceRecord[] {
+  if (!Array.isArray(records)) {
+    return [];
+  }
+
+  return records
+    .map((record) => {
+      if (!record || typeof record !== "object") {
+        return null;
+      }
+
+      const candidate = record as {
+        name?: unknown;
+        createdAt?: unknown;
+        profileRecords?: unknown;
+      };
+
+      if (typeof candidate.name !== "string" || typeof candidate.createdAt !== "string") {
+        return null;
+      }
+
+      const profileRecordsSource = Array.isArray(candidate.profileRecords) ? candidate.profileRecords : [];
+      const profileRecords = profileRecordsSource
+        .map((profileRecord) => normalizeProfileRecord(profileRecord))
+        .filter((profileRecord): profileRecord is ProfileRecord => profileRecord !== null);
+
+      return {
+        name: candidate.name,
+        createdAt: candidate.createdAt,
+        profileRecords,
+      } satisfies PerformanceRecord;
+    })
+    .filter((record): record is PerformanceRecord => record !== null);
 }
 
 function mapPerformancePayload(doc: StatReportDocument): PerformancePayload {
@@ -42,8 +113,11 @@ function mapPerformancePayload(doc: StatReportDocument): PerformancePayload {
   }
 
   return {
-    statDefinitions: doc.performancePayload.statDefinitions?.map((stat) => ({ value: stat.value })) ?? [],
-    performanceRecords: doc.performancePayload.performanceRecords ?? [],
+    statDefinitions: (Array.isArray(doc.performancePayload.statDefinitions)
+      ? doc.performancePayload.statDefinitions
+      : []
+    ).map((stat) => ({ value: stat.value })),
+    performanceRecords: mapPerformanceRecords(doc.performancePayload.performanceRecords),
   };
 }
 
@@ -51,16 +125,20 @@ function mapMatchRecords(matchDocs: MatchRecordDocument[]): EloPayload["matchRec
   return matchDocs.map((record) => ({
     id: record.matchId,
     name: record.name ?? undefined,
-    participants: {
-      A: {
-        profileId: record.participants?.A.profileId ?? "",
-        profileName: record.participants?.A.profileName ?? "",
-      },
-      B: {
-        profileId: record.participants?.B.profileId ?? "",
-        profileName: record.participants?.B.profileName ?? "",
-      },
-    },
+    participants: (() => {
+      const participantA = record.participants?.A ?? { profileId: "", profileName: "" };
+      const participantB = record.participants?.B ?? { profileId: "", profileName: "" };
+      return {
+        A: {
+          profileId: participantA.profileId,
+          profileName: participantA.profileName,
+        },
+        B: {
+          profileId: participantB.profileId,
+          profileName: participantB.profileName,
+        },
+      };
+    })(),
     setResult: {
       A: record.setResult.A,
       B: record.setResult.B,
@@ -74,7 +152,7 @@ function mapMatchRecords(matchDocs: MatchRecordDocument[]): EloPayload["matchRec
             B: record.roster.B,
           }
         : undefined,
-    winnerSide: record.winnerSide as "A" | "B",
+    winnerSide: record.winnerSide === "B" ? "B" : "A",
   }));
 }
 
@@ -112,8 +190,8 @@ function mapLegacyMatchRecords(records: unknown[]): EloPayload["matchRecords"] {
         },
       },
       setResult: {
-        A: Number(legacy.setResult?.A ?? 0),
-        B: Number(legacy.setResult?.B ?? 0),
+        A: legacy.setResult?.A ?? 0,
+        B: legacy.setResult?.B ?? 0,
       },
       matchDate: toIsoString(legacy.matchDate),
       createdAt: toIsoString(legacy.createdAt),
@@ -139,19 +217,20 @@ function mapEloPayload(
   }
 
   const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
+  const bestOfRaw = doc.eloPayload.bestOf;
+  const bestOf: 1 | 3 | 5 | 7 = bestOfRaw === 3 || bestOfRaw === 5 || bestOfRaw === 7 ? bestOfRaw : 1;
 
   return {
     k: doc.eloPayload.k,
-    bestOf: (doc.eloPayload.bestOf as 1 | 3 | 5 | 7) ?? 1,
+    bestOf,
     lastUpdatedAt: doc.eloPayload.lastUpdatedAt ? toIsoString(doc.eloPayload.lastUpdatedAt) : undefined,
-    eloRatings:
-      doc.eloPayload.eloRatings?.map((rating) => ({
-        profile: profileMap.get(rating.profileId) ?? {
-          id: rating.profileId,
-          name: "(unknown)",
-        },
-        score: rating.score,
-      })) ?? [],
+    eloRatings: doc.eloPayload.eloRatings.map((rating) => ({
+      profile: profileMap.get(rating.profileId) ?? {
+        id: rating.profileId,
+        name: "(unknown)",
+      },
+      score: rating.score,
+    })),
     matchRecords: resolvedMatchRecords,
   };
 }
@@ -176,7 +255,10 @@ export async function findReportByToken(token: string, ownerId: string): Promise
       .sort({ matchDate: 1, createdAt: 1 })
       .lean<MatchRecordDocument[]>();
 
-    const legacyMatchRecords = (doc.eloPayload as unknown as { matchRecords?: unknown[] })?.matchRecords ?? [];
+    const legacyMatchRecords =
+      doc.eloPayload && typeof doc.eloPayload === "object" && "matchRecords" in doc.eloPayload
+        ? ((doc.eloPayload as { matchRecords?: unknown[] }).matchRecords ?? [])
+        : [];
 
     return {
       type: "elo",

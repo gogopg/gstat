@@ -14,19 +14,30 @@ import { Button } from "@/components/ui/button";
 export function DialogProvider() {
   const { isOpen, config, closeDialog } = useDialogStore();
   const onConfirmClick = () => {
-    if (config?.onConfirm) {
-      config.onConfirm();
+    const maybePromise = config?.onConfirm?.();
+    if (maybePromise instanceof Promise) {
+      void maybePromise.finally(() => {
+        closeDialog();
+      });
+      return;
     }
 
     closeDialog();
   };
 
   if (!config) {
-    return <div></div>;
+    return null;
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {}}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          closeDialog();
+        }
+      }}
+    >
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{config.title}</DialogTitle>
@@ -34,7 +45,12 @@ export function DialogProvider() {
         </DialogHeader>
         <DialogFooter>
           {config.showCancelButton && <Button onClick={closeDialog}>취소</Button>}
-          <Button variant="outline" onClick={onConfirmClick}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              onConfirmClick();
+            }}
+          >
             확인
           </Button>
         </DialogFooter>

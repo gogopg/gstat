@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Schema, model, models, type InferSchemaType } from "mongoose";
+import { Schema, model, models, type InferSchemaType, type Model } from "mongoose";
 
 const UserSchema = new Schema(
   {
@@ -16,4 +16,6 @@ const UserSchema = new Schema(
 
 export type UserDocument = InferSchemaType<typeof UserSchema>;
 
-export const UserModel = models.User ?? model<UserDocument>("User", UserSchema, "user");
+const existingUserModel = models.User as Model<UserDocument> | undefined;
+
+export const UserModel = existingUserModel ?? model<UserDocument>("User", UserSchema, "user");

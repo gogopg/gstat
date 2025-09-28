@@ -20,7 +20,7 @@ export default function ProfileSelectCombo({ profileDefinitions, side }: props) 
   }>();
 
   const fieldName = `participants.${side}.profileName` as const;
-  const { field, fieldState } = useController({ control, name: fieldName });
+  const { field } = useController({ control, name: fieldName });
 
   const base = `participants.${side}` as const;
   const selectedId = useWatch({ control, name: `${base}.profileId` }) as string | undefined;
@@ -45,7 +45,7 @@ export default function ProfileSelectCombo({ profileDefinitions, side }: props) 
                 <CommandItem
                   key={profile.id}
                   value={profile.name}
-                  onSelect={(currentValue) => {
+                  onSelect={() => {
                     if (selectedId === profile.id) {
                       setValue(`${base}.profileId`, "", { shouldDirty: true, shouldValidate: true });
                       field.onChange(""); // profileName 초기화 (string 필드)

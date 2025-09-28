@@ -15,7 +15,8 @@ import React, { useState } from "react";
 import { useStatReportStore } from "@/store/store";
 
 export function ExportStatReport() {
-  const reportText = JSON.stringify(useStatReportStore.getState().statReports);
+  const statReports = useStatReportStore((state) => state.statReports);
+  const reportText = JSON.stringify(statReports);
   const [open, setOpen] = useState(false);
 
   const copyToClipboard = async () => {
@@ -29,13 +30,15 @@ export function ExportStatReport() {
   };
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <Button
         type="button"
         variant="ghost"
         className="inline-flex text-blue-500"
         aria-label="리포트 JSON Text"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+        }}
       >
         <ArrowUpFromLine className="h-5 w-5" />
         리포트 내보내기
@@ -54,10 +57,21 @@ export function ExportStatReport() {
         </div>
         <DialogFooter className="sm:justify-end">
           <div className="flex gap-2">
-            <Button variant="secondary" type="button" onClick={copyToClipboard}>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => {
+                void copyToClipboard();
+              }}
+            >
               클립보드로 복사
             </Button>
-            <Button type="button" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
               확인
             </Button>
           </div>

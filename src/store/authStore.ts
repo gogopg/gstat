@@ -16,14 +16,20 @@ type AuthState = {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  login: (user) => set({ user, isAuthenticated: true }),
-  logout: async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    set({ user: null, isAuthenticated: false });
-    window.location.href = "/";
+  login: (user) => {
+    set({ user, isAuthenticated: true });
+  },
+  logout: () => {
+    void fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+      set({ user: null, isAuthenticated: false });
+      window.location.href = "/";
+    });
   },
   hydrateFromServer: (user) => {
-    if (user) set({ user, isAuthenticated: true });
-    else set({ user: null, isAuthenticated: false });
+    if (user) {
+      set({ user, isAuthenticated: true });
+    } else {
+      set({ user: null, isAuthenticated: false });
+    }
   },
 }));

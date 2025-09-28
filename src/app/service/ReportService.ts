@@ -1,10 +1,8 @@
 "use server";
 
-import { randomUUID } from "crypto";
-
 import { connectToDatabase, MatchRecordModel, StatReportModel } from "@/db";
 import { findReportByToken, findReportsByOwnerId } from "@/db/repository/reportRepository";
-import type { EloPayload, SimpleStatReport, StatReport } from "@/types/report";
+import type { SimpleStatReport, StatReport } from "@/types/report";
 import { getSessionUser } from "@/util/auth";
 import { generateReportToken } from "@/util/tokenUtil";
 
@@ -24,9 +22,9 @@ export async function getReport(token: string, ownerId: string): Promise<StatRep
 export async function insertReport(report: StatReport): Promise<void> {
   await connectToDatabase();
 
-  let token = await generateReportToken();
+  let token = generateReportToken();
   while (await StatReportModel.exists({ token })) {
-    token = await generateReportToken();
+    token = generateReportToken();
   }
 
   const owner = await getSessionUser();
@@ -35,9 +33,9 @@ export async function insertReport(report: StatReport): Promise<void> {
   }
 
   const profileDefinitions = report.profileDefinitions.map((profile) => ({
-    id: profile.id ?? randomUUID(),
+    id: profile.id,
     name: profile.name,
-    description: profile.description ?? undefined,
+    description: profile.description,
   }));
 
   const base = {
@@ -54,15 +52,15 @@ export async function insertReport(report: StatReport): Promise<void> {
     await StatReportModel.create({
       ...base,
       performancePayload: {
-        statDefinitions: payload.statDefinitions ?? [],
-        performanceRecords: payload.performanceRecords ?? [],
+        statDefinitions: payload.statDefinitions,
+        performanceRecords: payload.performanceRecords,
       },
     });
     return;
   }
 
-  const payload = report.payload as EloPayload;
-  const matchRecords = payload.matchRecords ?? [];
+  const payload = report.payload;
+  const matchRecords = payload.matchRecords;
 
   await StatReportModel.create({
     ...base,
@@ -70,7 +68,7 @@ export async function insertReport(report: StatReport): Promise<void> {
       k: normalizeNumber(payload.k, 0),
       bestOf: normalizeNumber(payload.bestOf, 1),
       lastUpdatedAt: payload.lastUpdatedAt ? new Date(payload.lastUpdatedAt) : undefined,
-      eloRatings: (payload.eloRatings ?? []).map((rating) => ({
+      eloRatings: payload.eloRatings.map((rating) => ({
         profileId: rating.profile.id,
         score: rating.score,
       })),
@@ -84,7 +82,7 @@ export async function insertReport(report: StatReport): Promise<void> {
   await MatchRecordModel.insertMany(
     matchRecords.map((match) => ({
       reportToken: token,
-      matchId: match.id ?? randomUUID(),
+      matchId: match.id,
       name: match.name,
       participants: {
         A: {

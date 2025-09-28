@@ -1,4 +1,4 @@
-import { Schema, model, models, type InferSchemaType } from "mongoose";
+import { Schema, model, models, type InferSchemaType, type Model } from "mongoose";
 
 const MatchParticipantSchema = new Schema(
   {
@@ -50,5 +50,7 @@ MatchRecordSchema.index({ reportToken: 1, matchDate: 1 });
 
 export type MatchRecordDocument = InferSchemaType<typeof MatchRecordSchema>;
 
+const existingMatchRecordModel = models.MatchRecord as Model<MatchRecordDocument> | undefined;
+
 export const MatchRecordModel =
-  models.MatchRecord ?? model<MatchRecordDocument>("MatchRecord", MatchRecordSchema, "matchRecord");
+  existingMatchRecordModel ?? model<MatchRecordDocument>("MatchRecord", MatchRecordSchema, "matchRecord");

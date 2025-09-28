@@ -5,8 +5,11 @@ function expectedScore(aSide: EloRating, bSide: EloRating): number {
 }
 
 function scoreA(record: MatchRecord): number {
-  const total = Number(record.setResult.A) + Number(record.setResult.B);
-  return Number(record.setResult.A) / total;
+  const total = record.setResult.A + record.setResult.B;
+  if (total === 0) {
+    return 0.5;
+  }
+  return record.setResult.A / total;
 }
 
 function findRating(id: string, ratings: EloRating[]): EloRating | undefined {
@@ -47,9 +50,9 @@ export function calcMatchRecords(payload: EloPayload): EloRating[] {
     .slice()
     .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
 
-  const initializedRatings = payload.eloRatings.map(rating => ({
+  const initializedRatings = payload.eloRatings.map((rating) => ({
     ...rating,
-    score: 1000
+    score: 1000,
   }));
 
 

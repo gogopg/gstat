@@ -10,12 +10,30 @@ interface RequestBody {
   passwordCheck: string;
 }
 
+function isRequestBody(value: unknown): value is RequestBody {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<RequestBody>;
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.email === "string" &&
+    typeof candidate.password === "string" &&
+    typeof candidate.passwordCheck === "string"
+  );
+}
+
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const body: Partial<RequestBody> = await request.json().catch(() => ({}));
-    const { id, email, password, passwordCheck } = body;
+    const rawBody: unknown = await request.json().catch(() => null);
+    if (!isRequestBody(rawBody)) {
+      return NextResponse.json({ message: "잘못된 요청입니다." }, { status: 400 });
+    }
+
+    const { id, email, password, passwordCheck } = rawBody;
 
     if (!id || !email || !password || !passwordCheck) {
       return NextResponse.json({ message: "모든 필드를 채워주세요." }, { status: 400 });
@@ -25,7 +43,6 @@ export async function POST(request: Request) {
     }
 
     await connectToDatabase();
-
     const existing = await UserModel.findOne({ $or: [{ username: id }, { email }] }).lean<UserDocument>();
     if (existing) {
       if (existing.username === id) {
@@ -40,19 +57,28 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-      const user = await UserModel.create({
+      const createdUser = await UserModel.create({
         username: id,
         email,
         passwordHash: hashedPassword,
       });
+      const persistedUser = await UserModel.findById(createdUser.id).lean<UserDocument>();
+      if (!persistedUser) {
+        throw new Error("생성된 사용자를 불러오지 못했습니다.");
+      }
+
+      const createdAt =
+        persistedUser.createdAt instanceof Date
+          ? persistedUser.createdAt.toISOString()
+          : new Date().toISOString();
 
       return NextResponse.json(
         {
           user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
+            id: persistedUser.id,
+            username: persistedUser.username,
+            email: persistedUser.email,
+            createdAt,
           },
           message: "회원가입이 성공적으로 완료되었습니다.",
         },

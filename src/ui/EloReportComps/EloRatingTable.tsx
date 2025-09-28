@@ -41,7 +41,9 @@ const buildColumns = (): ColumnDef<EloRating>[] => [
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === "asc");
+          }}
           className="font-bold"
         >
           점수

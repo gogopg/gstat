@@ -19,7 +19,9 @@ export default function PerformanceRecordItem({ record, reportName }: props) {
       title: `${record.name} 기록 삭제`,
       description: `${record.name} 기록을 삭제합니다. 삭제하면 복구할 수 없습니다.`,
       showCancelButton: true,
-      onConfirm: () => useStatReportStore.getState().deletePerformanceRecord(reportName, record.name),
+      onConfirm: () => {
+        useStatReportStore.getState().deletePerformanceRecord(reportName, record.name);
+      },
     });
   };
 
@@ -43,7 +45,7 @@ export default function PerformanceRecordItem({ record, reportName }: props) {
       <AccordionContent className="flex w-full flex-col gap-4 text-balance">
         <div className="grid auto-rows-fr grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
           {record.profileRecords.map((profile) => (
-            <Card className="max-w-sm min-w-50" key={`${profile.name}`}>
+            <Card className="max-w-sm min-w-50" key={profile.name}>
               <CardHeader>
                 <CardTitle>{profile.name}</CardTitle>
               </CardHeader>

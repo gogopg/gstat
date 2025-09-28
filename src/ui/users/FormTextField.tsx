@@ -1,17 +1,23 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import React from 'react';
-import { Control } from 'react-hook-form'; // Control 타입을 import
+import React from "react";
+import { Control, FieldValues, Path } from "react-hook-form";
 
-type props = {
-  control: Control<any>;
-  name: string;
+type TextFormFieldProps<TFieldValues extends FieldValues> = {
+  control: Control<TFieldValues>;
+  name: Path<TFieldValues>;
   label: string;
   placeholder: string;
   type?: string;
-}
+};
 
-export default function TextFormField({ control, name, label, placeholder, type = "text" } : props){
+export default function TextFormField<TFieldValues extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  type = "text",
+}: TextFormFieldProps<TFieldValues>) {
   return (
     <FormField
       control={control}
@@ -27,5 +33,4 @@ export default function TextFormField({ control, name, label, placeholder, type 
       )}
     />
   );
-};
-
+}

@@ -17,17 +17,17 @@ export default function DatePicker() {
 
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<Date | undefined>(curDate);
-  const [time, setTime] = React.useState<string>(format(curDate, "hh:mm:ss"));
+  const [time, setTime] = React.useState<string>(format(curDate, "HH:mm:ss"));
 
   const { control } = useFormContext<{
     matchDate: MatchRecord["matchDate"];
   }>();
-  const { field, fieldState } = useController({ control, name: "matchDate" });
+  const { field } = useController({ control, name: "matchDate" });
 
   const onSelectDate = (date?: Date) => {
     setDate(date);
     if (date) {
-      field.onChange(format(date, "yyyy-mm-dd") + " " + time);
+      field.onChange(`${format(date, "yyyy-MM-dd")} ${time}`);
       setOpen(false);
     } else {
       field.onChange(undefined);
@@ -37,7 +37,9 @@ export default function DatePicker() {
   const onChangeTime: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const time = e.target.value;
     setTime(time);
-    if (date) field.onChange(format(date, "yyyy-mm-dd") + " " + time);
+    if (date) {
+      field.onChange(`${format(date, "yyyy-MM-dd")} ${time}`);
+    }
   };
 
   return (
@@ -75,7 +77,7 @@ export default function DatePicker() {
           id="time-picker"
           step="1"
           defaultValue={time}
-          onChange={(e) => onChangeTime(e)}
+          onChange={onChangeTime}
           className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />
       </div>

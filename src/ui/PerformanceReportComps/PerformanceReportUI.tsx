@@ -11,20 +11,12 @@ import { useStatReportStore } from "@/store/store";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import PerformanceRecordItem from "@/ui/PerformanceReportComps/PerformanceRecordItem";
+import type { StatRecordFormValues } from "@/types/forms";
 
 type props = Extract<StatReport, { type: "performance" }>;
 
-type StatRecordInput = {
-  statRecords: {
-    [profileKey: string]: {
-      [statKey: string]: string;
-    };
-  };
-  statRecordName: string;
-};
-
 export default function PerformanceReportUI({ statReport }: { statReport: props }) {
-  const recordMethods = useForm<StatRecordInput>({
+  const recordMethods = useForm<StatRecordFormValues>({
     defaultValues: {
       statRecords: {},
       statRecordName: "",
@@ -35,7 +27,7 @@ export default function PerformanceReportUI({ statReport }: { statReport: props 
   const router = useRouter();
   const id = statReport.name;
 
-  const addStatRecord = (rawData: StatRecordInput) => {
+  const addStatRecord = (rawData: StatRecordFormValues) => {
     const newStatRecord: PerformanceRecord = {
       name: rawData.statRecordName,
       createdAt: new Date().toISOString(),
@@ -54,16 +46,18 @@ export default function PerformanceReportUI({ statReport }: { statReport: props 
         resultMap.set(profileName, {
           name: profileName,
           count: 1,
-          stats: Object.fromEntries(Object.entries(statObj).map(([k, v]) => [k, Number(v)])),
+          stats: Object.fromEntries(
+            Object.entries(statObj).map(([key, value]) => [key, Number.parseFloat(value)]),
+          ),
         });
       } else {
         for (const [statKey, value] of Object.entries(statObj)) {
-          existing.stats[statKey] = Number(value);
+          existing.stats[statKey] = Number.parseFloat(value);
         }
       }
     }
     newStatRecord.profileRecords.push(...Array.from(resultMap.values()));
-    useStatReportStore.getState().addPerformanceRecord(statReport?.name, newStatRecord);
+    useStatReportStore.getState().addPerformanceRecord(statReport.name, newStatRecord);
 
     cancelRecordInput();
   };
@@ -72,11 +66,6 @@ export default function PerformanceReportUI({ statReport }: { statReport: props 
     setCreateRecordFlag(false);
     recordMethods.reset();
   };
-
-  if (!statReport) {
-    return <div>해당 보고서를 찾을 수 없습니다.</div>;
-  }
-
   return (
     <div className="flex w-full flex-col gap-8">
       <div className="flex w-1/2 flex-col gap-4">
@@ -115,12 +104,14 @@ export default function PerformanceReportUI({ statReport }: { statReport: props 
       {createRecordFlag && (
         <div>
           <FormProvider {...recordMethods}>
-            <CreateStatRecordInput
-              statDefinitions={statReport.payload.statDefinitions}
-              profileDefinitions={statReport.profileDefinitions}
-              executeFunctionAction={() => recordMethods.handleSubmit(addStatRecord)()}
-              cancelFunctionAction={cancelRecordInput}
-            />
+              <CreateStatRecordInput
+                statDefinitions={statReport.payload.statDefinitions}
+                profileDefinitions={statReport.profileDefinitions}
+                executeFunctionAction={() => {
+                  void recordMethods.handleSubmit(addStatRecord)();
+                }}
+                cancelFunctionAction={cancelRecordInput}
+              />
           </FormProvider>
         </div>
       )}
@@ -133,7 +124,9 @@ export default function PerformanceReportUI({ statReport }: { statReport: props 
               type="button"
               variant="ghost"
               className="flex items-center gap-1 text-blue-500"
-              onClick={() => setCreateRecordFlag(true)}
+              onClick={() => {
+                setCreateRecordFlag(true);
+              }}
             >
               <CirclePlusIcon className="h-4 w-4" />
               기록 추가
@@ -142,8 +135,8 @@ export default function PerformanceReportUI({ statReport }: { statReport: props 
         </div>
         <div>
           <Accordion type="single" collapsible className="flex w-full flex-col gap-2" defaultValue="item-1">
-            {statReport.payload.performanceRecords?.map((record) => (
-                <PerformanceRecordItem record={record} reportName={statReport.name} key={record.name}/>
+            {statReport.payload.performanceRecords.map((record) => (
+              <PerformanceRecordItem record={record} reportName={statReport.name} key={record.name} />
             ))}
           </Accordion>
         </div>

@@ -8,6 +8,7 @@ import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import type { StatRecordFormValues } from "@/types/forms";
 
 type props = {
   statDefinitions: StatDefinition[];
@@ -22,7 +23,7 @@ export default function CreateStatRecordInput({
   executeFunctionAction,
   cancelFunctionAction,
 }: props) {
-  const { control } = useFormContext();
+  const { control } = useFormContext<StatRecordFormValues>();
 
   const saveRecord = () => {
     executeFunctionAction();
