@@ -11,7 +11,7 @@ import DBReportPageUI from "@/ui/StatReportComps/DBReportPageUI";
 
 export default async function Page() {
   const user = await getSessionUser();
-  const reports = user ? await getReports(user.id) : [];
+  const reports = await getReports();
 
   return (
     <div className="flex flex-col gap-4">

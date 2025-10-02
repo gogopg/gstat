@@ -11,8 +11,9 @@ function normalizeNumber(value: unknown, fallback: number) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-export async function getReports(ownerId: string): Promise<SimpleStatReport[]> {
-  return findReportsByOwnerId(ownerId);
+export async function getReports(): Promise<SimpleStatReport[]> {
+  const owner = await getSessionUser();
+  return owner ? await findReportsByOwnerId(owner.id) : [];
 }
 
 export async function getReport(token: string, ownerId: string): Promise<StatReport | null> {
@@ -102,4 +103,9 @@ export async function insertReport(report: StatReport): Promise<void> {
     })),
     { ordered: true },
   );
+}
+
+export async function deleteReport(token: string): Promise<void> {
+  const owner = await getSessionUser();
+  await StatReportModel.deleteOne({ token, ownerId: owner?.id });
 }

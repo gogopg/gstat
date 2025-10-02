@@ -45,7 +45,12 @@ export default function CreateReportForm({ isAuthenticated, insertReport }: Crea
         : data;
 
     if (isAuthenticated) {
-      await insertReport(report);
+      try {
+        await insertReport(report);
+        router.push("/reports");
+      } catch (e) {
+        alert("오류 발생: " + (e as Error).message);
+      }
     } else {
       useStatReportStore.getState().add(report);
     }

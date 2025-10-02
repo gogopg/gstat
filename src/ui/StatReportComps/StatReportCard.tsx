@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDialogStore } from "@/store/dialogStore";
+import { deleteReport } from "@/app/service/ReportService";
 
 type props = {
   statReport: SimpleStatReport;
@@ -22,16 +23,21 @@ type props = {
 
 export function StatReportCard({ statReport, isSsr }: props) {
   const router = useRouter();
-  const reportKey = isSsr ? statReport.token ?? "" : statReport.name;
+  const reportKey = isSsr ? (statReport.token ?? "") : statReport.name;
 
   const onDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     useDialogStore.getState().openDialog({
-      title: `${reportKey} 리포트 삭제`,
-      description: `${reportKey} 리포트를 삭제합니다. 삭제하면 복구할 수 없습니다.`,
+      title: `${statReport.name} 리포트 삭제`,
+      description: `${statReport.name} 리포트를 삭제합니다. 삭제하면 복구할 수 없습니다.`,
       showCancelButton: true,
-      onConfirm: () => {
-        useStatReportStore.getState().remove(reportKey);
+      onConfirm: async () => {
+        if (isSsr) {
+          await deleteReport(reportKey);
+          router.refresh();
+        } else {
+          useStatReportStore.getState().remove(reportKey);
+        }
       },
     });
   };
